@@ -1,0 +1,283 @@
+{
+    "openapi": "3.0.2",
+    "info": {
+        "title": "Book Pick Up RESTful API",
+        "description": "API Spec for a book pick up service",
+        "version": "1.0.0"
+    },
+    "servers": [
+        {
+            "url": "http://localhost:3000/api"
+        }
+    ],
+    "paths": {
+        "/pickups": {
+            "get": {
+                "tags": ["Book Pick Up API"],
+                "description": "List all scheduled book pick ups",
+                "summary": "List all scheduled book pick ups",
+                "responses": {
+                    "200": {
+                        "description": "Success get all pick up schedules",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "number"
+                                        },
+                                        "status": {
+                                            "type": "string"
+                                        },
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Pickup"
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "post": {
+                "tags": ["Book Pick Up API"],
+                "description": "Schedule a book pick up",
+                "summary": "Schedule a book pick up",
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CreateOrUpdatePickup"
+                            }
+                        }
+                    }
+                },
+                "parameters": [],
+                "responses": {
+                    "200": {
+                        "description": "Success Create Category",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "number"
+                                        },
+                                        "status": {
+                                            "type": "string"
+                                        },
+                                        "data": {
+                                            "$ref": "#/components/schemas/Pickup"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/pickups/{pickupId}": {
+            "get": {
+                "tags": ["Book Pick Up API"],
+                "description": "Get Pick Up Schedule by Id",
+                "summary": "Get Pick Up Schedule by Id",
+                "parameters": [{ "name": "pickupId", "in": "path", "description": "Pick Up Id" }],
+                "responses": {
+                    "200": {
+                        "description": "Success get Pick Up Schedule",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "number"
+                                        },
+                                        "status": {
+                                            "type": "string"
+                                        },
+                                        "data": {
+                                            "$ref": "#/components/schemas/Pickup"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "put": {
+                "tags": ["Book Pick Up API"],
+                "summary": "Update Pick Up Schedule by Id",
+                "description": "Update Pick Up Schedule by Id",
+                "parameters": [{ "name": "pickupId", "in": "path", "description": "Pick Up Id" }],
+                "requestBody": {
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/CreateOrUpdatePickup"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Success update Pick Up Schedule",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "number"
+                                        },
+                                        "status": {
+                                            "type": "string"
+                                        },
+                                        "data": {
+                                            "$ref": "#/components/schemas/Pickup"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            },
+            "delete": {
+                "tags": ["Book Pick Up API"],
+                "description": "Delete Pick Up Schedule by Id",
+                "summary": "Delete Pick Up Schedule by Id",
+                "parameters": [{ "name": "pickupId", "in": "path", "description": "Pick Up Id" }],
+                "responses": {
+                    "200": {
+                        "description": "Success delete Pick Up Schedule",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "number"
+                                        },
+                                        "status": {
+                                            "type": "string"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/subjects/{subject}": {
+            "get": {
+                "tags": ["Books API"],
+                "description": "List books of a subject",
+                "summary": "List books of a subject",
+                "parameters": [
+                    {
+                        "name": "subject",
+                        "in": "path",
+                        "description": "Subject Name",
+                        "required": true
+                    },
+                    { "name": "page", "in": "query", "description": "Pagination" }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success list all books of a subject",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "number"
+                                        },
+                                        "status": {
+                                            "type": "string"
+                                        },
+                                        "data": {
+                                            "type": "object",
+                                            "properties": {
+                                                "page": {
+                                                    "type": "number"
+                                                },
+                                                "book_count": {
+                                                    "type": "number"
+                                                },
+                                                "books": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "$ref": "#/components/schemas/Book"
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "components": {
+        "schemas": {
+            "Pickup": {
+                "type": "object",
+                "properties": {
+                    "pickupId": {
+                        "type": "number"
+                    },
+                    "book": {
+                        "$ref": "#/components/schemas/Book"
+                    },
+                    "schedule": {
+                        "type": "string",
+                        "format": "date-time",
+                        "description": "Book pick up date and time",
+                        "example": "2022-12-30T08:30:00Z"
+                    }
+                }
+            },
+            "Book": {
+                "type": "object",
+                "properties": {
+                    "title": {
+                        "type": "string"
+                    },
+                    "author": {
+                        "type": "string"
+                    },
+                    "edition": {
+                        "type": "number"
+                    }
+                }
+            },
+            "CreateOrUpdatePickup": {
+                "type": "object",
+                "properties": {
+                    "book": {
+                        "$ref": "#/components/schemas/Book"
+                    },
+                    "schedule": {
+                        "type": "string",
+                        "format": "date-time",
+                        "description": "Book pick up date and time",
+                        "example": "2022-12-30T08:30:00Z"
+                    }
+                }
+            }
+        }
+    }
+}
