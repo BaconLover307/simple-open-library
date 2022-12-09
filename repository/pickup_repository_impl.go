@@ -36,9 +36,9 @@ func (repo PickupRepositoryImpl) UpdateSchedule(ctx context.Context, tx *sql.Tx,
 	return pickup
 }
 
-func (repo PickupRepositoryImpl) Delete(ctx context.Context, tx *sql.Tx, pickupId int) {
+func (repo PickupRepositoryImpl) Delete(ctx context.Context, tx *sql.Tx, pickup domain.Pickup) {
 	query := "DELETE FROM pickup WHERE pickupId = ?"
-	_, err := tx.ExecContext(ctx, query, pickupId)
+	_, err := tx.ExecContext(ctx, query, pickup.PickupId)
 	helper.PanicIfError(err)
 
 }

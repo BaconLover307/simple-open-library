@@ -29,6 +29,7 @@ func (repo BookRepositoryImpl) FindBook(ctx context.Context, tx *sql.Tx, book do
 	query := "SELECT bookId FROM book WHERE title = ? AND author = ? AND edition = ?"
 	rows, err := tx.QueryContext(ctx, query, book.Title, book.Author, book.Edition)
 	helper.PanicIfError(err)
+	defer rows.Close()
 
 	resultBook := domain.Book{}
 	if rows.Next() {
@@ -46,6 +47,7 @@ func (repo BookRepositoryImpl) FindById(ctx context.Context, tx *sql.Tx, bookId 
 	query := "SELECT bookId, title, author, edition FROM book WHERE bookId = ?"
 	rows, err := tx.QueryContext(ctx, query, bookId)
 	helper.PanicIfError(err)
+	defer rows.Close()
 
 	book := domain.Book{}
 	if rows.Next() {
