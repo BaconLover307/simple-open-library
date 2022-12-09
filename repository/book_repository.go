@@ -8,5 +8,6 @@ import (
 
 type BookRepository interface {
 	Save(ctx context.Context, tx *sql.Tx, book domain.Book) domain.Book
-	Find(ctx context.Context, tx *sql.Tx, book domain.Book) domain.Book
+	FindBook(ctx context.Context, tx *sql.Tx, book domain.Book) (domain.Book, error)
+	FindById(ctx context.Context, tx *sql.Tx, bookId int) (domain.Book, error)
 }
