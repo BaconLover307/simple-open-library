@@ -1,2 +1,3 @@
 # simple-open-library
-Simple backend application for submitting book pickups from Open Library
+Simple backend application for scheduling book pickups from Open Library
+
