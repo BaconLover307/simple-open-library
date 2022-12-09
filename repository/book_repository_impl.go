@@ -11,6 +11,10 @@ import (
 type BookRepositoryImpl struct {
 }
 
+func NewBookRepository() BookRepository {
+	return &BookRepositoryImpl{}
+}
+
 func (repo BookRepositoryImpl) Save(ctx context.Context, tx *sql.Tx, book domain.Book) domain.Book {
 	query := "INSERT INTO book(title, author, edition) VALUES(?, ?, ?)"
 

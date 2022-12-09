@@ -12,20 +12,30 @@ import (
 )
 
 type BookServiceImpl struct {
-	Repo repository.BookRepository
+	BookRepo repository.BookRepository
+	LibraryRepo repository.LibraryRepository
 	DB *sql.DB
 	Validate *validator.Validate
 }
 
-func NewBookService(repo repository.BookRepository, db *sql.DB, validate *validator.Validate) BookService {
-	return &BookServiceImpl{repo, db, validate}
+func NewBookService(bookRepo repository.BookRepository, libraryRepo repository.LibraryRepository, db *sql.DB, validate *validator.Validate) BookService {
+	return &BookServiceImpl{
+		BookRepo: bookRepo,
+		LibraryRepo: libraryRepo,
+		DB: db,
+		Validate: validate,
+	}
 }
 
-func (service BookServiceImpl) BrowseSubject(ctx context.Context, request web.SubjectRequest) []web.BookResponse {
+func (service BookServiceImpl) BrowseSubject(ctx context.Context, request web.SubjectRequest) []web.LibraryBookResponse {
 	err := service.Validate.Struct(request)
 	helper.PanicIfError(err)
-
-	panic("not implemented")
+	
+	libraryBooks, err := service.LibraryRepo.Subjects(ctx, request.Subject, request.Page)
+	helper.PanicIfError(err)
+	
+	return web.NewLibraryBookResponses(libraryBooks)
+	
 }
 
 func (service BookServiceImpl) Save(ctx context.Context, request web.BookRequest) web.BookResponse {
@@ -41,7 +51,7 @@ func (service BookServiceImpl) Save(ctx context.Context, request web.BookRequest
 		Author: request.Author,
 		Edition: request.Edition,
 	}
-	book = service.Repo.Save(ctx, tx, book)
+	book = service.BookRepo.Save(ctx, tx, book)
 
 	return web.NewBookResponse(&book)
 }
@@ -59,7 +69,7 @@ func (service BookServiceImpl) FindBook(ctx context.Context, request web.BookReq
 		Author: request.Author,
 		Edition: request.Edition,
 	}
-	book, err = service.Repo.FindBook(ctx, tx, book)
+	book, err = service.BookRepo.FindBook(ctx, tx, book)
 	helper.PanicIfError(err)
 
 	return web.NewBookResponse(&book)
@@ -70,7 +80,7 @@ func (service BookServiceImpl) FindById(ctx context.Context, bookId int) web.Boo
 	helper.PanicIfError(err)
 	defer helper.CommitOrRollback(tx)
 
-	book, err := service.Repo.FindById(ctx, tx, bookId)
+	book, err := service.BookRepo.FindById(ctx, tx, bookId)
 	helper.PanicIfError(err)
 
 	return web.NewBookResponse(&book)
