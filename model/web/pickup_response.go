@@ -11,7 +11,7 @@ type PickupResponse struct {
 func NewPickupResponse(pickup *domain.Pickup) PickupResponse {
 	return PickupResponse{
 		PickupId: pickup.PickupId,
-		Book: BookResponse(pickup.Book),
+		Book: NewBookResponse(&pickup.Book),
 		Schedule: pickup.Schedule,
 	}
 }

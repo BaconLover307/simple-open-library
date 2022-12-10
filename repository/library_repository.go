@@ -6,5 +6,5 @@ import (
 )
 
 type LibraryRepository interface {
-	Subjects(ctx context.Context, subject string, page int) ([]domain.LibraryBook, error)
+	Subjects(ctx context.Context, subject string, page int) ([]domain.Book, error)
 }

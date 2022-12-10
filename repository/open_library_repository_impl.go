@@ -3,7 +3,7 @@ package repository
 import (
 	"context"
 	"simple-open-library/exception"
-	lib "simple-open-library/lib"
+	"simple-open-library/lib"
 	"simple-open-library/model/domain"
 )
 
@@ -17,15 +17,15 @@ func NewOpenLibraryRepositoryImpl(openLibrary lib.OpenLibraryLib) LibraryReposit
 	}
 }
 
-func (openLibRepo OpenLibraryRepositoryImpl) Subjects(ctx context.Context, subject string, page int) ([]domain.LibraryBook, error) {
-	libraryBooksResponse := openLibRepo.OpenLibraryLib.BrowseSubjects(ctx, subject, page)
+func (openLibRepo OpenLibraryRepositoryImpl) Subjects(ctx context.Context, subject string, page int) ([]domain.Book, error) {
+	openLibSubjectsResponse := openLibRepo.OpenLibraryLib.BrowseSubjects(ctx, subject, page)
 	
-	var libraryBooks []domain.LibraryBook
-	if libraryBooksResponse.WorkCount == 0 {
+	var libraryBooks []domain.Book
+	if openLibSubjectsResponse.WorkCount == 0 {
 		return libraryBooks, exception.NewNotFoundError("subject not found")
 	}
-	for _, book := range libraryBooksResponse.Works {
-		libraryBooks = append(libraryBooks, domain.LibraryBook(domain.NewLibraryBookFromOpenLibrary(&book)))
+	for _, book := range openLibSubjectsResponse.Works {
+		libraryBooks = append(libraryBooks, domain.NewBookFromOpenLibrary(&book))
 	}
 	return libraryBooks, nil
 }

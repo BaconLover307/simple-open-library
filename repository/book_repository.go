@@ -7,7 +7,9 @@ import (
 )
 
 type BookRepository interface {
-	Save(ctx context.Context, tx *sql.Tx, book domain.Book) domain.Book
-	FindBook(ctx context.Context, tx *sql.Tx, book domain.Book) (domain.Book, error)
-	FindById(ctx context.Context, tx *sql.Tx, bookId int) (domain.Book, error)
+	SaveBook(ctx context.Context, tx *sql.Tx, book domain.Book) domain.Book
+	FindBookById(ctx context.Context, tx *sql.Tx, bookId string) (domain.Book, error)
+	Authored(ctx context.Context, tx *sql.Tx, authorId string, bookId string)
+	SaveAuthor(ctx context.Context, tx *sql.Tx, author domain.Author) domain.Author
+	FindAuthor(ctx context.Context, tx *sql.Tx, authorId string) (domain.Author, error)
 }

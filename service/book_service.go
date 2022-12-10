@@ -6,8 +6,7 @@ import (
 )
 
 type BookService interface {
-	BrowseSubject(ctx context.Context, request web.SubjectRequest) []web.LibraryBookResponse
-	Save(ctx context.Context, request web.BookRequest) web.BookResponse
-	FindBook(ctx context.Context, request web.BookRequest) web.BookResponse
-	FindById(ctx context.Context, bookId int) web.BookResponse
+	BrowseSubject(ctx context.Context, request web.SubjectRequest) []web.BookResponse
+	SaveBook(ctx context.Context, request web.BookRequest) web.BookResponse
+	FindBookById(ctx context.Context, bookId string) web.BookResponse
 }

@@ -44,7 +44,12 @@ func (repo PickupRepositoryImpl) Delete(ctx context.Context, tx *sql.Tx, pickup 
 }
 
 func (repo PickupRepositoryImpl) FindById(ctx context.Context, tx *sql.Tx, pickupId int) (domain.Pickup, error) {
-	query := "SELECT p.pickupId, p.bookId, b.title, b.author, b.edition, p.schedule FROM pickup p JOIN book b ON p.bookId = b.bookId WHERE pickupId = ?"
+	query := `
+	SELECT p.pickupId, p.schedule, p.bookId, b.title, b.edition, a.authorId, a.name FROM pickup p JOIN book b ON p.bookId = b.bookId
+		LEFT JOIN authored ab ON b.bookId = ab.bookId
+		LEFT JOIN author a ON ab.authorId = a.authorId
+	WHERE p.pickupId = ?
+	`
 	rows, err := tx.QueryContext(ctx, query, pickupId)
 	helper.PanicIfError(err)
 	defer rows.Close()
@@ -52,30 +57,60 @@ func (repo PickupRepositoryImpl) FindById(ctx context.Context, tx *sql.Tx, picku
 	pickup := domain.Pickup{}
 	book := domain.Book{}
 	if rows.Next() {
-		err := rows.Scan(&pickup.PickupId, &book.BookId, &book.Title, &book.Author, &book.Edition, &pickup.Schedule)
-		pickup.Book = book
+		var authors []domain.Author
+		author := domain.Author{}
+		err = rows.Scan(&pickup.PickupId, &pickup.Schedule, &book.BookId, &book.Title, &book.Edition, &author.AuthorId, &author.Name)
 		helper.PanicIfError(err)
+		authors = append(authors, author)
+		
+		// Get remaining authors
+		for rows.Next() {
+			author := domain.Author{}			
+			err = rows.Scan(&pickup.PickupId, &pickup.Schedule, &book.BookId, &book.Title, &book.Edition, &author.AuthorId, &author.Name)
+			helper.PanicIfError(err)
+			authors = append(authors, author)
+		}
+		book.Authors = authors
+		pickup.Book = book
+
 		return pickup, nil
 	} else {
-		return pickup, exception.NewNotFoundError("pick up schedule found not found")
+		return pickup, exception.NewNotFoundError("pick up schedule not found")
 	}
 }
 
 func (repo PickupRepositoryImpl) FindAll(ctx context.Context, tx *sql.Tx, ) []domain.Pickup {
-	query := "SELECT p.pickupId, p.bookId, b.title, b.author, b.edition, p.schedule FROM pickup p JOIN book b ON p.bookId = b.bookId"
+	query := `
+	SELECT p.pickupId, p.schedule, p.bookId, b.title, b.edition, a.authorId, a.name FROM pickup p JOIN book b ON p.bookId = b.bookId
+		LEFT JOIN authored ab ON b.bookId = ab.bookId
+		LEFT JOIN author a ON ab.authorId = a.authorId
+	`
 	rows, err := tx.QueryContext(ctx, query)
 	helper.PanicIfError(err)
 	defer rows.Close()
 
 	var pickups []domain.Pickup
-	for rows.Next() {
-		pickup := domain.Pickup{}
-		book := domain.Book{}
-		
-		err := rows.Scan(&pickup.PickupId, &book.BookId, &book.Title, &book.Author, &book.Edition, &pickup.Schedule)
-		pickup.Book = book
-		helper.PanicIfError(err)
 
+	pickupMap := make(map[int]domain.Pickup)
+	pickup := domain.Pickup{}
+	book := domain.Book{}
+	author := domain.Author{}
+	var authors []domain.Author
+	
+	for rows.Next() {
+		err = rows.Scan(&pickup.PickupId, &pickup.Schedule, &book.BookId, &book.Title, &book.Edition, &author.AuthorId, &author.Name)
+		helper.PanicIfError(err)
+		_, isPresent := pickupMap[pickup.PickupId]
+		if (isPresent) {
+			authors = nil
+		}
+		authors = append(authors, author)
+		book.Authors = authors
+		pickup.Book = book
+		pickupMap[pickup.PickupId] = pickup
+	}
+	
+	for _, pickup := range pickupMap {
 		pickups = append(pickups, pickup)
 	}
 	return pickups

@@ -27,36 +27,18 @@ func NewBookService(bookRepo repository.BookRepository, libraryRepo repository.L
 	}
 }
 
-func (service BookServiceImpl) BrowseSubject(ctx context.Context, request web.SubjectRequest) []web.LibraryBookResponse {
+func (service BookServiceImpl) BrowseSubject(ctx context.Context, request web.SubjectRequest) []web.BookResponse {
 	err := service.Validate.Struct(request)
 	helper.PanicIfError(err)
 	
-	libraryBooks, err := service.LibraryRepo.Subjects(ctx, request.Subject, request.Page)
+	books, err := service.LibraryRepo.Subjects(ctx, request.Subject, request.Page)
 	helper.PanicIfError(err)
 	
-	return web.NewLibraryBookResponses(libraryBooks)
+	return web.NewBookResponses(books)
 	
 }
 
-func (service BookServiceImpl) Save(ctx context.Context, request web.BookRequest) web.BookResponse {
-	err := service.Validate.Struct(request)
-	helper.PanicIfError(err)
-
-	tx, err := service.DB.Begin()
-	helper.PanicIfError(err)
-	defer helper.CommitOrRollback(tx)
-
-	book := domain.Book{
-		Title: request.Title,
-		Author: request.Author,
-		Edition: request.Edition,
-	}
-	book = service.BookRepo.Save(ctx, tx, book)
-
-	return web.NewBookResponse(&book)
-}
-
-func (service BookServiceImpl) FindBook(ctx context.Context, request web.BookRequest) web.BookResponse {
+func (service BookServiceImpl) SaveBook(ctx context.Context, request web.BookRequest) web.BookResponse {
 	err := service.Validate.Struct(request)
 	helper.PanicIfError(err)
 
@@ -66,21 +48,49 @@ func (service BookServiceImpl) FindBook(ctx context.Context, request web.BookReq
 
 	book := domain.Book{
 		Title: request.Title,
-		Author: request.Author,
 		Edition: request.Edition,
 	}
-	book, err = service.BookRepo.FindBook(ctx, tx, book)
-	helper.PanicIfError(err)
+	book = service.BookRepo.SaveBook(ctx, tx, book)
+	
+	var authors []domain.Author
+	for _, authorRequest := range request.Authors {
+		author, err := service.BookRepo.FindAuthor(ctx, tx, authorRequest.AuthorId)
+		if (err != nil) {
+			author = service.BookRepo.SaveAuthor(ctx, tx, author)
+			service.BookRepo.Authored(ctx, tx, author.AuthorId, book.BookId)
+		}
+		authors = append(authors, author)
+	}
+	book.Authors = authors
 
 	return web.NewBookResponse(&book)
 }
 
-func (service BookServiceImpl) FindById(ctx context.Context, bookId int) web.BookResponse {
+// func (service BookServiceImpl) FindBook(ctx context.Context, request web.BookRequest) web.BookResponse {
+// 	err := service.Validate.Struct(request)
+// 	helper.PanicIfError(err)
+
+// 	tx, err := service.DB.Begin()
+// 	helper.PanicIfError(err)
+// 	defer helper.CommitOrRollback(tx)
+
+// 	book := domain.Book{
+// 		Title: request.Title,
+// 		Author: request.Author,
+// 		Edition: request.Edition,
+// 	}
+// 	book, err = service.BookRepo.FindBook(ctx, tx, book)
+// 	helper.PanicIfError(err)
+
+// 	return web.NewBookResponse(&book)
+// }
+
+func (service BookServiceImpl) FindBookById(ctx context.Context, bookId string) web.BookResponse {
 	tx, err := service.DB.Begin()
 	helper.PanicIfError(err)
 	defer helper.CommitOrRollback(tx)
 
-	book, err := service.BookRepo.FindById(ctx, tx, bookId)
+	book, err := service.BookRepo.FindBookById(ctx, tx, bookId)
 	helper.PanicIfError(err)
 
 	return web.NewBookResponse(&book)

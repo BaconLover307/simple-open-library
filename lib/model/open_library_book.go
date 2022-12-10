@@ -1,7 +1,7 @@
 package model
 
 type OpenLibraryBook struct {
-	// Key               string   `json:"key"`
+	Key               string   `json:"key"`
 	Title             string   `json:"title"`
 	EditionCount      int      `json:"edition_count"`
 	// CoverID           int      `json:"cover_id"`

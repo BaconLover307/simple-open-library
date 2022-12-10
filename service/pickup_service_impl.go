@@ -30,7 +30,7 @@ func (service PickupServiceImpl) Create(ctx context.Context, request web.PickupC
 	defer helper.CommitOrRollback(tx)
 
 	pickup := domain.Pickup{
-		Book: domain.Book(request.Book),
+		Book: web.NewBook(&request.Book),
 		Schedule: request.Schedule,
 	}
 	pickup = service.Repo.Create(ctx, tx, pickup)
