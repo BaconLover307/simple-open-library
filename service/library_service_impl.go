@@ -3,33 +3,47 @@ package service
 import (
 	"context"
 	"database/sql"
+	"simple-open-library/exception"
 	"simple-open-library/helper"
+	"simple-open-library/lib"
+	"simple-open-library/model/domain"
 	"simple-open-library/model/web"
-	"simple-open-library/repository"
 
 	"github.com/go-playground/validator/v10"
 )
 
 type LibraryServiceImpl struct {
-	LibraryRepo repository.LibraryRepository
+	OpenLibraryLib lib.OpenLibraryLib
 	DB *sql.DB
 	Validate *validator.Validate
 }
 
-func NewLibraryService(libraryRepo repository.LibraryRepository, db *sql.DB, validate *validator.Validate) LibraryService {
+func NewLibraryService(openLibraryLib lib.OpenLibraryLib, db *sql.DB, validate *validator.Validate) LibraryService {
 	return &LibraryServiceImpl{
-		LibraryRepo: libraryRepo,
+		OpenLibraryLib: openLibraryLib,
 		DB: db,
 		Validate: validate,
 	}
 }
 
-func (service LibraryServiceImpl) BrowseBySubject(ctx context.Context, request web.SubjectRequest) []web.BookResponse {
+func (service LibraryServiceImpl) BrowseBySubject(ctx context.Context, request web.SubjectRequest) web.SubjectResponse {
 	err := service.Validate.Struct(request)
 	helper.PanicIfError(err)
 	
-	books, err := service.LibraryRepo.Subjects(ctx, request.Subject, request.Page)
-	helper.PanicIfError(err)
+	openLibSubjectsResponse := service.OpenLibraryLib.BrowseSubjects(ctx, request.Subject, request.Page)
+	if openLibSubjectsResponse.WorkCount == 0 {
+		panic(exception.NewNotFoundError("subject not found"))
+	}
+
+	var libraryBooks []domain.Book
+	for _, book := range openLibSubjectsResponse.Works {
+		libraryBooks = append(libraryBooks, domain.NewBookFromOpenLibrary(&book))
+	}
 	
-	return web.NewBookResponses(books)
+	return web.SubjectResponse{
+		Subject: request.Subject,
+		BookCount: openLibSubjectsResponse.WorkCount,
+		Page: request.Page,
+		Books: web.NewBookResponses(libraryBooks),
+	}
 }

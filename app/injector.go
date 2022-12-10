@@ -19,7 +19,6 @@ var librarySet = wire.NewSet(
 )
 
 var repositorySet = wire.NewSet(
-	repository.NewOpenLibraryRepository,
 	repository.NewBookRepository,
 	repository.NewPickupRepository,
 )

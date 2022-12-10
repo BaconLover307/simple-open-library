@@ -30,7 +30,7 @@ func (openLibrary OpenLibraryImpl) BrowseSubjects(ctx context.Context, subject s
 	request, err := http.NewRequestWithContext(
 		ctx,
 		http.MethodGet,
-		fmt.Sprintf("%s/subjects/%s.json?limit=10&offset=%d",openLibrary.BaseUrl, subject, page*10),
+		fmt.Sprintf("%s/subjects/%s.json?limit=10&offset=%d",openLibrary.BaseUrl, subject, (page-1)*10),
 		nil,
 	)
 	// request.Header.Add("")

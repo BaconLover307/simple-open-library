@@ -29,10 +29,11 @@ func (controller LibraryControllerImpl) BrowseBySubject(writer http.ResponseWrit
 	page, err := strconv.Atoi(pageQuery)
 	helper.PanicIfError(err)
 
-	controller.LibraryService.BrowseBySubject(request.Context(), web.SubjectRequest{Subject: subject, Page: page})
+	subjectResponse := controller.LibraryService.BrowseBySubject(request.Context(), web.SubjectRequest{Subject: subject, Page: page})
 	webResponse := web.WebResponse{
 		Code:   200,
 		Status: "OK",
+		Data: subjectResponse,
 	}
 	
 	helper.WriteResponseBody(writer, webResponse)
