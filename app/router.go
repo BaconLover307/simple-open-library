@@ -2,6 +2,7 @@ package app
 
 import (
 	"simple-open-library/controller"
+	"simple-open-library/exception"
 
 	"github.com/julienschmidt/httprouter"
 )
@@ -16,6 +17,8 @@ func NewRouter(pickupController controller.PickupController, libraryController c
 	router.DELETE("/api/pickups/:pickupId", pickupController.DeleteSchedule)
 	
 	router.GET("/api/subjects/:subject", libraryController.BrowseBySubject)
+	
+	router.PanicHandler = exception.ErrorHandler
 
 	return router
 }
