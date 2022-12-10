@@ -17,7 +17,7 @@ type BookServiceImpl struct {
 	Validate *validator.Validate
 }
 
-func NewBookService(bookRepo repository.BookRepository, libraryRepo repository.LibraryRepository, db *sql.DB, validate *validator.Validate) BookService {
+func NewBookService(bookRepo repository.BookRepository, db *sql.DB, validate *validator.Validate) BookService {
 	return &BookServiceImpl{
 		BookRepo: bookRepo,
 		DB: db,

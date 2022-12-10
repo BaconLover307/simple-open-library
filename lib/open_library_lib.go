@@ -21,7 +21,7 @@ type OpenLibraryImpl struct {
 	BaseUrl string
 }
 
-func NewOpenLibraryLib(baseUrl string) OpenLibraryLib {
+func NewOpenLibraryLib() OpenLibraryLib {
 	return &OpenLibraryImpl{BaseUrl: openLibUrl}
 }
 

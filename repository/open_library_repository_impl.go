@@ -11,7 +11,7 @@ type OpenLibraryRepositoryImpl struct {
 	OpenLibraryLib lib.OpenLibraryLib
 }
 
-func NewOpenLibraryRepositoryImpl(openLibrary lib.OpenLibraryLib) LibraryRepository {
+func NewOpenLibraryRepository(openLibrary lib.OpenLibraryLib) LibraryRepository {
 	return &OpenLibraryRepositoryImpl{
 		OpenLibraryLib: openLibrary,
 	}
