@@ -101,7 +101,7 @@ func (repo PickupRepositoryImpl) FindAll(ctx context.Context, tx *sql.Tx, ) []do
 		err = rows.Scan(&pickup.PickupId, &pickup.Schedule, &book.BookId, &book.Title, &book.Edition, &author.AuthorId, &author.Name)
 		helper.PanicIfError(err)
 		_, isPresent := pickupMap[pickup.PickupId]
-		if (isPresent) {
+		if (!isPresent) {
 			authors = nil
 		}
 		authors = append(authors, author)
