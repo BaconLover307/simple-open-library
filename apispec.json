@@ -259,7 +259,7 @@
         },
         "/subjects/{subject}": {
             "get": {
-                "tags": ["Books API"],
+                "tags": ["Library API"],
                 "description": "List books of a subject",
                 "summary": "List books of a subject",
                 "parameters": [
@@ -312,6 +312,44 @@
                                         },
                                         "data": {
                                             "type": "string"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/books": {
+            "get": {
+                "tags": ["Books API"],
+                "description": "List all saved books",
+                "summary": "List all saved books",
+                "security": [
+                    {
+                        "PickupAuth": []
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Success get all books",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "number"
+                                        },
+                                        "status": {
+                                            "type": "string"
+                                        },
+                                        "data": {
+                                            "type": "array",
+                                            "items": {
+                                                "$ref": "#/components/schemas/Book"
+                                            }
                                         }
                                     }
                                 }

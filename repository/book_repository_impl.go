@@ -25,30 +25,46 @@ func (repo BookRepositoryImpl) SaveBook(ctx context.Context, tx *sql.Tx, book do
 
 }
 
-// func (repo BookRepositoryImpl) FindBook(ctx context.Context, tx *sql.Tx, book domain.Book) (domain.Book, error) {
-// 	query := "SELECT bookId FROM book WHERE title = ? AND author = ? AND edition = ?"
-// 	rows, err := tx.QueryContext(ctx, query, book.Title, book.Author, book.Edition)
-// 	helper.PanicIfError(err)
-// 	defer rows.Close()
+func (repo BookRepositoryImpl) FindAllBooks(ctx context.Context, tx *sql.Tx) []domain.Book {
+	query := `
+	SELECT b.bookId, b.title, b.edition, a.authorId, a.name
+	FROM author a JOIN authored ab ON a.authorId = ab.authorId
+		JOIN book b ON ab.bookId = b.bookId
+	`
 
-// 	resultBook := domain.Book{}
-// 	if rows.Next() {
-// 		resultBook = book
-// 		err = rows.Scan(&resultBook.BookId)
-// 		helper.PanicIfError(err)
+	rows, err := tx.QueryContext(ctx, query)
+	helper.PanicIfError(err)
+	defer rows.Close()
 
-// 		return resultBook, nil
-// 	} else {
-// 		return resultBook, exception.NewNotFoundError("book not found") 
-// 	}
-// }
+	var books []domain.Book
+	book := domain.Book{}
+	author := domain.Author{}
+	var authors []domain.Author
+	
+	for rows.Next() {
+		err = rows.Scan(&book.BookId, &book.Title, &book.Edition, &author.AuthorId, &author.Name)
+		helper.PanicIfError(err)
+		if (len(books) == 0 || books[len(books)-1].BookId != book.BookId) {
+			authors = nil
+			authors = append(authors, author)
+			book.Authors = authors
+			books = append(books, book)
+		} else {
+			// pickupMap[pickup.PickupId] = pickup
+			authors = append(authors, author)
+			book.Authors = authors
+			books[len(books)-1] = book
+		}
+	}
+	return books
+}
 
 func (repo BookRepositoryImpl) FindBookById(ctx context.Context, tx *sql.Tx, bookId string) (domain.Book, error) {
 	query := `
 	SELECT b.bookId, b.title, b.edition, a.authorId, a.name
 	FROM author a JOIN authored ab ON a.authorId = ab.authorId
 		JOIN book b ON ab.bookId = b.bookId
-	WHERE b.bookId = ?;
+	WHERE b.bookId = ?
 	`
 	rows, err := tx.QueryContext(ctx, query, bookId)
 	helper.PanicIfError(err)

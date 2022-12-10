@@ -7,7 +7,7 @@ import (
 	"github.com/julienschmidt/httprouter"
 )
 
-func NewRouter(pickupController controller.PickupController, libraryController controller.LibraryController) *httprouter.Router {
+func NewRouter(pickupController controller.PickupController, libraryController controller.LibraryController, bookController controller.BookController) *httprouter.Router {
 	router := httprouter.New()
 
 	router.GET("/api/pickups", pickupController.ListSchedule)
@@ -17,6 +17,8 @@ func NewRouter(pickupController controller.PickupController, libraryController c
 	router.DELETE("/api/pickups/:pickupId", pickupController.DeleteSchedule)
 	
 	router.GET("/api/subjects/:subject", libraryController.BrowseBySubject)
+	
+	router.GET("/api/books", bookController.ListBooks)
 	
 	router.PanicHandler = exception.ErrorHandler
 

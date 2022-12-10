@@ -34,7 +34,8 @@ func InitializeServer() *http.Server {
 	openLibraryLib := lib.NewOpenLibraryLib()
 	libraryService := service.NewLibraryService(openLibraryLib, db, validate)
 	libraryController := controller.NewLibraryController(libraryService)
-	router := NewRouter(pickupController, libraryController)
+	bookController := controller.NewBookController(bookService)
+	router := NewRouter(pickupController, libraryController, bookController)
 	authMiddleware := middleware.NewAuthMiddleware(router)
 	server := NewServer(authMiddleware)
 	return server
@@ -48,4 +49,4 @@ var repositorySet = wire.NewSet(repository.NewBookRepository, repository.NewPick
 
 var serviceSet = wire.NewSet(service.NewBookService, service.NewLibraryService, service.NewPickupService)
 
-var controllerSet = wire.NewSet(controller.NewLibraryController, controller.NewPickupController)
+var controllerSet = wire.NewSet(controller.NewLibraryController, controller.NewPickupController, controller.NewBookController)

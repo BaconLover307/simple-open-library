@@ -35,6 +35,7 @@ var serviceSet = wire.NewSet(
 var controllerSet = wire.NewSet(
 	controller.NewLibraryController,
 	controller.NewPickupController,
+	controller.NewBookController,
 )
 
 func InitializeServer() *http.Server {
