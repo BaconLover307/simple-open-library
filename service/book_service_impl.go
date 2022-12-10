@@ -3,6 +3,8 @@ package service
 import (
 	"context"
 	"database/sql"
+	"reflect"
+	"simple-open-library/exception"
 	"simple-open-library/helper"
 	"simple-open-library/model/domain"
 	"simple-open-library/model/web"
@@ -34,11 +36,15 @@ func (service BookServiceImpl) SaveBook(ctx context.Context, request web.BookReq
 	defer helper.CommitOrRollback(tx)
 
 	book, err := service.BookRepo.FindBookById(ctx, tx, request.BookId)
+	if (err == nil && !reflect.DeepEqual(web.NewBook(&request), book)) {
+		panic(exception.NewConflictError("cannot overwrite existing book. please insert correct book data"))
+	}
 	if err == nil {
 		return web.NewBookResponse(&book)
 	}
 
 	book = domain.Book{
+		BookId: request.BookId,
 		Title: request.Title,
 		Edition: request.Edition,
 	}
@@ -48,7 +54,11 @@ func (service BookServiceImpl) SaveBook(ctx context.Context, request web.BookReq
 	for _, authorRequest := range request.Authors {
 		author, err := service.BookRepo.FindAuthor(ctx, tx, authorRequest.AuthorId)
 		if (err != nil) {
-			author = service.BookRepo.SaveAuthor(ctx, tx, author)
+			newAuthor := domain.Author{
+				AuthorId: authorRequest.AuthorId,
+				Name: authorRequest.Name,
+			}
+			author = service.BookRepo.SaveAuthor(ctx, tx, newAuthor)
 			service.BookRepo.Authored(ctx, tx, author.AuthorId, book.BookId)
 		}
 		authors = append(authors, author)

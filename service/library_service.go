@@ -6,5 +6,5 @@ import (
 )
 
 type LibraryService interface {
-	BrowseBySubject(ctx context.Context, request web.SubjectRequest) []web.BookResponse
+	BrowseBySubject(ctx context.Context, request web.SubjectRequest) web.SubjectResponse
 }
