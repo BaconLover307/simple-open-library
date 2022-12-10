@@ -67,6 +67,10 @@ func (controller PickupControllerImpl) SubmitSchedule(writer http.ResponseWriter
 func (controller PickupControllerImpl) UpdateSchedule(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
 	pickupUpdateScheduleRequest := web.PickupUpdateScheduleRequest{}
 	helper.ReadFromRequestBody(request, &pickupUpdateScheduleRequest)
+	pickupId := params.ByName("pickupId")
+	id, err := strconv.Atoi(pickupId)
+	helper.PanicIfError(err)
+	pickupUpdateScheduleRequest.PickupId = id
 
 
 	updateResponse := controller.PickupService.UpdateSchedule(request.Context(), pickupUpdateScheduleRequest)
