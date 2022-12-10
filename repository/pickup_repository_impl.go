@@ -84,14 +84,13 @@ func (repo PickupRepositoryImpl) FindAll(ctx context.Context, tx *sql.Tx, ) []do
 	SELECT p.pickupId, p.schedule, p.bookId, b.title, b.edition, a.authorId, a.name FROM pickup p JOIN book b ON p.bookId = b.bookId
 		LEFT JOIN authored ab ON b.bookId = ab.bookId
 		LEFT JOIN author a ON ab.authorId = a.authorId
+		ORDER BY p.pickupId
 	`
 	rows, err := tx.QueryContext(ctx, query)
 	helper.PanicIfError(err)
 	defer rows.Close()
 
 	var pickups []domain.Pickup
-
-	pickupMap := make(map[int]domain.Pickup)
 	pickup := domain.Pickup{}
 	book := domain.Book{}
 	author := domain.Author{}
@@ -100,18 +99,19 @@ func (repo PickupRepositoryImpl) FindAll(ctx context.Context, tx *sql.Tx, ) []do
 	for rows.Next() {
 		err = rows.Scan(&pickup.PickupId, &pickup.Schedule, &book.BookId, &book.Title, &book.Edition, &author.AuthorId, &author.Name)
 		helper.PanicIfError(err)
-		_, isPresent := pickupMap[pickup.PickupId]
-		if (!isPresent) {
+		if (len(pickups) == 0 || pickups[len(pickups)-1].PickupId != pickup.PickupId) {
 			authors = nil
+			authors = append(authors, author)
+			book.Authors = authors
+			pickup.Book = book
+			pickups = append(pickups, pickup)
+		} else {
+			// pickupMap[pickup.PickupId] = pickup
+			authors = append(authors, author)
+			book.Authors = authors
+			pickup.Book = book
+			pickups[len(pickups)-1] = pickup
 		}
-		authors = append(authors, author)
-		book.Authors = authors
-		pickup.Book = book
-		pickupMap[pickup.PickupId] = pickup
-	}
-	
-	for _, pickup := range pickupMap {
-		pickups = append(pickups, pickup)
 	}
 	return pickups
 }
