@@ -59,7 +59,7 @@
                 "parameters": [],
                 "responses": {
                     "200": {
-                        "description": "Success Create Category",
+                        "description": "Success Create Pick Up Schedule",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -91,6 +91,27 @@
                 "responses": {
                     "200": {
                         "description": "Success get Pick Up Schedule",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "number"
+                                        },
+                                        "status": {
+                                            "type": "string"
+                                        },
+                                        "data": {
+                                            "$ref": "#/components/schemas/Pickup"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Pick Up Schedule not found",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -206,21 +227,28 @@
                                             "type": "string"
                                         },
                                         "data": {
-                                            "type": "object",
-                                            "properties": {
-                                                "page": {
-                                                    "type": "number"
-                                                },
-                                                "book_count": {
-                                                    "type": "number"
-                                                },
-                                                "books": {
-                                                    "type": "array",
-                                                    "items": {
-                                                        "$ref": "#/components/schemas/Book"
-                                                    }
-                                                }
-                                            }
+                                            "$ref": "#/components/schemas/Browse"
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Subject not found",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "code": {
+                                            "type": "number"
+                                        },
+                                        "status": {
+                                            "type": "string"
+                                        },
+                                        "data": {
+                                            "$ref": "#/components/schemas/Browse"
                                         }
                                     }
                                 }
@@ -233,6 +261,24 @@
     },
     "components": {
         "schemas": {
+            "Browse": {
+                "type": "object",
+                "properties": {
+                    "page": {
+                        "type": "number"
+                    },
+                    "book_count": {
+                        "type": "number"
+                    },
+                    "books": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/Book"
+                        }
+                    }
+                },
+                "nullable": true
+            },
             "Pickup": {
                 "type": "object",
                 "properties": {
@@ -246,21 +292,37 @@
                         "type": "string",
                         "format": "date-time",
                         "description": "Book pick up date and time",
-                        "example": "2022-12-30T08:30:00Z"
+                        "example": "2022-12-30 08:30:00"
                     }
-                }
+                },
+                "nullable": true
             },
             "Book": {
                 "type": "object",
                 "properties": {
+                    "bookId": {
+                        "type": "string"
+                    },
                     "title": {
                         "type": "string"
                     },
-                    "author": {
+                    "authors": {
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/Author"
+                        }
+                    }
+                },
+                "nullable": true
+            },
+            "Author": {
+                "type": "object",
+                "properties": {
+                    "authorId": {
                         "type": "string"
                     },
-                    "edition": {
-                        "type": "number"
+                    "name": {
+                        "type": "string"
                     }
                 }
             },
@@ -274,7 +336,7 @@
                         "type": "string",
                         "format": "date-time",
                         "description": "Book pick up date and time",
-                        "example": "2022-12-30T08:30:00Z"
+                        "example": "2022-12-30 08:30:00"
                     }
                 }
             }
