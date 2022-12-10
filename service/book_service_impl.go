@@ -13,7 +13,6 @@ import (
 
 type BookServiceImpl struct {
 	BookRepo repository.BookRepository
-	LibraryRepo repository.LibraryRepository
 	DB *sql.DB
 	Validate *validator.Validate
 }
@@ -21,21 +20,9 @@ type BookServiceImpl struct {
 func NewBookService(bookRepo repository.BookRepository, libraryRepo repository.LibraryRepository, db *sql.DB, validate *validator.Validate) BookService {
 	return &BookServiceImpl{
 		BookRepo: bookRepo,
-		LibraryRepo: libraryRepo,
 		DB: db,
 		Validate: validate,
 	}
-}
-
-func (service BookServiceImpl) BrowseSubject(ctx context.Context, request web.SubjectRequest) []web.BookResponse {
-	err := service.Validate.Struct(request)
-	helper.PanicIfError(err)
-	
-	books, err := service.LibraryRepo.Subjects(ctx, request.Subject, request.Page)
-	helper.PanicIfError(err)
-	
-	return web.NewBookResponses(books)
-	
 }
 
 func (service BookServiceImpl) SaveBook(ctx context.Context, request web.BookRequest) web.BookResponse {
@@ -46,7 +33,12 @@ func (service BookServiceImpl) SaveBook(ctx context.Context, request web.BookReq
 	helper.PanicIfError(err)
 	defer helper.CommitOrRollback(tx)
 
-	book := domain.Book{
+	book, err := service.BookRepo.FindBookById(ctx, tx, request.BookId)
+	if err == nil {
+		return web.NewBookResponse(&book)
+	}
+
+	book = domain.Book{
 		Title: request.Title,
 		Edition: request.Edition,
 	}
