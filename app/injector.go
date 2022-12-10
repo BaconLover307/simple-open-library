@@ -1,6 +1,7 @@
 //go:build wireinject
 // +build wireinject
 
+
 package app
 
 import (
@@ -9,9 +10,11 @@ import (
 	"simple-open-library/lib"
 	"simple-open-library/repository"
 	"simple-open-library/service"
+	"simple-open-library/middleware"
 
 	"github.com/go-playground/validator/v10"
 	"github.com/google/wire"
+	"github.com/julienschmidt/httprouter"
 )
 
 var librarySet = wire.NewSet(
@@ -43,6 +46,8 @@ func InitializeServer() *http.Server {
 		serviceSet,
 		controllerSet,
 		NewRouter,
+		wire.Bind(new(http.Handler), new(*httprouter.Router)),
+		middleware.NewAuthMiddleware,
 		NewServer,
 	)
 	return nil
