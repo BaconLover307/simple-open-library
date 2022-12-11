@@ -63,7 +63,7 @@ func TestRepoBookFindAuthorFail(t *testing.T) {
 	bookRepo := repository.NewBookRepository()
 	authorResult, err := bookRepo.FindAuthor(ctx, testTx, inputAuthor2.AuthorId)
 	
-	require.Error(t, err)
+	require.ErrorContains(t, err, "author not found")
 	require.Empty(t, authorResult)
 }
 
@@ -91,7 +91,7 @@ func TestRepoBookFindByIdFail(t *testing.T) {
 	bookRepo := repository.NewBookRepository()
 	bookResult, err := bookRepo.FindBookById(ctx, testTx, inputBook2.BookId)
 	
-	require.Error(t, err)
+	require.ErrorContains(t, err, "book not found")
 	require.Empty(t, bookResult)
 }
 

@@ -50,7 +50,7 @@ func TestRepoPickupFindByIdFail(t *testing.T) {
 	pickupRepo := repository.NewPickupRepository()
 	pickupResult, err := pickupRepo.FindById(ctx, testTx, inputPickup2.PickupId)
 	
-	require.Error(t, err)
+	require.ErrorContains(t, err, "pick up schedule not found")
 	require.Empty(t, pickupResult)
 }
 
