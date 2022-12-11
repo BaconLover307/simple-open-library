@@ -1,6 +1,9 @@
 package web
 
-import "simple-open-library/model/domain"
+import (
+	"simple-open-library/model/domain"
+	"sort"
+)
 
 type AuthorRequest struct {
 	AuthorId 	string 	`validate:"min=1,max=20" json:"authorId"`
@@ -15,8 +18,12 @@ func NewAuthor(request *AuthorRequest) domain.Author {
 
 func NewAuthors(requests []AuthorRequest) []domain.Author {
 	var authors []domain.Author
+	
 	for _, request := range requests {
 		authors = append(authors, NewAuthor(&request))
 	}
+	sort.Slice(authors, func(i, j int) bool {
+		return authors[i].AuthorId < authors[j].AuthorId
+	})
 	return authors
 }

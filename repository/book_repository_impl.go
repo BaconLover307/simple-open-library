@@ -30,6 +30,7 @@ func (repo BookRepositoryImpl) FindAllBooks(ctx context.Context, tx *sql.Tx) []d
 	SELECT b.bookId, b.title, b.edition, a.authorId, a.name
 	FROM author a JOIN authored ab ON a.authorId = ab.authorId
 		JOIN book b ON ab.bookId = b.bookId
+		ORDER BY b.bookId, a.authorId
 	`
 
 	rows, err := tx.QueryContext(ctx, query)
@@ -65,6 +66,7 @@ func (repo BookRepositoryImpl) FindBookById(ctx context.Context, tx *sql.Tx, boo
 	FROM author a JOIN authored ab ON a.authorId = ab.authorId
 		JOIN book b ON ab.bookId = b.bookId
 	WHERE b.bookId = ?
+	ORDER BY a.authorId
 	`
 	rows, err := tx.QueryContext(ctx, query, bookId)
 	helper.PanicIfError(err)

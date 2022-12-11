@@ -11,7 +11,7 @@ import (
 	"github.com/joho/godotenv"
 )
 
-func setupTestDB() *sql.DB {
+func SetupTestDB() *sql.DB {
 	_, b, _, _ := runtime.Caller(0)
 	basepath := filepath.Dir(b)
 	err := godotenv.Load(filepath.Join(basepath, "/../.env"))
@@ -33,6 +33,11 @@ func setupTestDB() *sql.DB {
 	return db
 }
 
-func truncateCategory(db *sql.DB) {
-	db.Exec("TRUNCATE category")
+func TruncateDatabase(db *sql.DB) {
+	db.Exec("SET FOREIGN_KEY_CHECKS = 0")
+	db.Exec("TRUNCATE pickup")
+	db.Exec("TRUNCATE authored")
+	db.Exec("TRUNCATE book")
+	db.Exec("TRUNCATE author")
+	db.Exec("SET FOREIGN_KEY_CHECKS = 1")
 }
