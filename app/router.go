@@ -3,6 +3,7 @@ package app
 import (
 	"simple-open-library/controller"
 	"simple-open-library/exception"
+	"simple-open-library/model/route"
 
 	"github.com/julienschmidt/httprouter"
 )
@@ -23,4 +24,12 @@ func NewRouter(pickupController controller.PickupController, libraryController c
 	router.PanicHandler = exception.ErrorHandler
 
 	return router
+}
+
+func NewRouteExclusions() *route.Prefixes {
+	prefixes := route.NewPrefixes()
+	prefixes.Add("/api/books")
+	prefixes.Add("/api/subjects")
+
+	return prefixes
 }

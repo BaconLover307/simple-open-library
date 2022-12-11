@@ -48,6 +48,7 @@ func InitializeServer() *http.Server {
 		controllerSet,
 		NewRouter,
 		wire.Bind(new(http.Handler), new(*httprouter.Router)),
+		NewRouteExclusions,
 		middleware.NewAuthMiddleware,
 		NewServer,
 	)

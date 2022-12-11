@@ -228,6 +228,11 @@
                 "tags": ["Book Pick Up API"],
                 "description": "Delete Pick Up Schedule by Id",
                 "summary": "Delete Pick Up Schedule by Id",
+                "security": [
+                    {
+                        "PickupAuth": []
+                    }
+                ],
                 "parameters": [
                     {
                         "name": "pickupId",
@@ -326,11 +331,6 @@
                 "tags": ["Books API"],
                 "description": "List all saved books",
                 "summary": "List all saved books",
-                "security": [
-                    {
-                        "PickupAuth": []
-                    }
-                ],
                 "responses": {
                     "200": {
                         "description": "Success get all books",
