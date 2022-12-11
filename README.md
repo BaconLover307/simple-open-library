@@ -1,12 +1,12 @@
 # Simple Open Library
 This repository contains the code of a simple backend application for scheduling book pickups from [Open Library](https://openlibrary.org)
 
-Due to the nature of the pandemic, Open Library is planning to reduce gatherings and crowds in its area by creating an online book pick up service. In order to borrow books from the library, users have to make an appointment at a specific time of day to come and pick up the books.
+Due to the nature of the pandemic, a local library is planning to reduce gatherings and crowds in its area by creating an online book pick up service. In order to borrow books from the library, users have to make an appointment at a specific time of day to come and pick up the books.
 
-This backend application provides the necessary APIs to do so. Users can browse books from Open Library before making a schedule. Users can then submit a pick up schedule of the book they want to borrow. Librarians can get all appointed schedules and their respective books. Librarians can also fetch a single appointment schedule. They can also update or delete an appointment.
+This backend application provides the necessary APIs to do so. Users can browse books from Open Library before making a schedule. Users can then submit a pick up schedule of the book they want to borrow. Librarians can get all appointed book pick up schedules with the book information. Librarians can also fetch a single appointment schedule. They can also update or delete an appointment.
 
 ## API Access
-Users do not have to login to use the backend application to browse books from Open Library or previouly submitted books. But an API Key (owned by a librarian) is needed to submit a pick up schedule, list schedules, or edit pick up schedules. This is done to prevent users from adding unnecessary schedules or changing submitted schedules without a librarian's verification.
+Users do not have to login to use the backend application to browse books from Open Library or previouly submitted books. But an API Key (owned by a librarian) is needed to submit a pick up schedule, list, update, or delete schedules. This is done to prevent users from adding unnecessary schedules or changing submitted schedules without a librarian's verification.
 
 ## API Specifications
 For now, please copy the API Spec file ([apispec.json](apispec.json)) into a [Swagger Editor](https://editor.swagger.io/) to view the full API specifications.
@@ -24,6 +24,7 @@ For now, please copy the API Spec file ([apispec.json](apispec.json)) into a [Sw
 * Install the necessary [tools](##install-tools) to run / build the application
 * Setup the .env file. The [.env.example](.env.example) file can be found in the root folder.
 * Migrate the [schema](##sql-schema) into MySQL database. A separate database should be made for unit tests.
+* Optionally install an API testing tool such as [Postman](https://www.postman.com/downloads) to manually test APIs with ease
 
 ## SQL Schema
 ```sql
@@ -63,9 +64,13 @@ make run
 ```bash
 make build
 ```
+* Build and run application:
+```bash
+make build_run
+```
 * Run tests:
 ```bash
-make test
+make run_test
 ```
 #
 ## Further Improvements
