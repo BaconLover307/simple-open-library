@@ -18,6 +18,7 @@ var (
 
 func TestMain(m *testing.M) {
 	testDB = test.SetupTestDB()
+	test.TruncateDatabase(testDB)
 	testRouter = test.InitializeTestServer(testDB)
 
 	os.Exit(m.Run())

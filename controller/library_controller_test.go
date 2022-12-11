@@ -19,7 +19,7 @@ var (
 	inputSubjectNotFound = "asdfasdf"
 )
 
-func TestBrowseBySubject(t *testing.T) {
+func TestControllerLibraryBrowseBySubject(t *testing.T) {
 	t.Run("Success", func(t *testing.T) {
 		db := test.SetupTestDB()
 		test.TruncateDatabase(db)
@@ -37,15 +37,15 @@ func TestBrowseBySubject(t *testing.T) {
 		require.Equal(t, http.StatusOK, response.StatusCode)
 		
 		body, _ := io.ReadAll(response.Body)
-		var responseBody map[string]interface{}
+		var responseBody web.WebResponse
 		json.Unmarshal(body, &responseBody)
 
 		// $ Test body status & code
-		require.Equal(t, http.StatusOK, int(responseBody["code"].(float64)))
-		require.Equal(t, "OK", responseBody["status"])
+		require.Equal(t, http.StatusOK, responseBody.Code)
+		require.Equal(t, "OK", responseBody.Status)
 	
 		// $ Test body data
-		jsonString, _ := json.Marshal(responseBody["data"])
+		jsonString, _ := json.Marshal(responseBody.Data)
 		var subjectResponse web.SubjectResponse
 		json.Unmarshal(jsonString,&subjectResponse)	
 		
@@ -71,15 +71,15 @@ func TestBrowseBySubject(t *testing.T) {
 		require.Equal(t, http.StatusOK, response.StatusCode)
 		
 		body, _ := io.ReadAll(response.Body)
-		var responseBody map[string]interface{}
+		var responseBody web.WebResponse
 		json.Unmarshal(body, &responseBody)
 
 		// $ Test body status & code
-		require.Equal(t, http.StatusOK, int(responseBody["code"].(float64)))
-		require.Equal(t, "OK", responseBody["status"])
+		require.Equal(t, http.StatusOK, responseBody.Code)
+		require.Equal(t, "OK", responseBody.Status)
 		
 		// $ Test body data
-		jsonString, _ := json.Marshal(responseBody["data"])
+		jsonString, _ := json.Marshal(responseBody.Data)
 		var subjectResponse web.SubjectResponse
 		json.Unmarshal(jsonString,&subjectResponse)
 	
@@ -105,15 +105,15 @@ func TestBrowseBySubject(t *testing.T) {
 		require.Equal(t, http.StatusNotFound, response.StatusCode)
 		
 		body, _ := io.ReadAll(response.Body)
-		var responseBody map[string]interface{}
+		var responseBody web.WebResponse
 		json.Unmarshal(body, &responseBody)
 
 		// $ Test body status & code
-		require.Equal(t, http.StatusNotFound, int(responseBody["code"].(float64)))
-		require.Equal(t, "NOT FOUND", responseBody["status"])
+		require.Equal(t, http.StatusNotFound, responseBody.Code)
+		require.Equal(t, "NOT FOUND", responseBody.Status)
 	
 		// $ Test body data
-		subjectResponse := responseBody["data"].(string)
+		subjectResponse := responseBody.Data.(string)
 	
 		require.Equal(t, "subject not found", subjectResponse)
 	})
