@@ -5,12 +5,11 @@ import (
 	"io"
 	"net/http"
 	"net/http/httptest"
-	"os"
 	"simple-open-library/model/web"
 	"simple-open-library/test"
 	"testing"
 
-	"github.com/stretchr/testify/require"
+	"github.com/stretchr/testify/assert"
 )
 
 var (
@@ -27,31 +26,30 @@ func TestControllerLibraryBrowseBySubject(t *testing.T) {
 
 		request := httptest.NewRequest(http.MethodGet, BaseURL+"/api/subjects/" + inputSubjectSuccess, nil)
 		request.Header.Add("Content-Type", "application/json")
-		request.Header.Add("X-API-KEY", os.Getenv("X-API-KEY"))
 
 		recorder := httptest.NewRecorder()
 		router.ServeHTTP(recorder, request)
 
 		// $ Test HTTP status
 		response := recorder.Result()
-		require.Equal(t, http.StatusOK, response.StatusCode)
+		assert.Equal(t, http.StatusOK, response.StatusCode)
 		
 		body, _ := io.ReadAll(response.Body)
 		var responseBody web.WebResponse
 		json.Unmarshal(body, &responseBody)
 
 		// $ Test body status & code
-		require.Equal(t, http.StatusOK, responseBody.Code)
-		require.Equal(t, "OK", responseBody.Status)
+		assert.Equal(t, http.StatusOK, responseBody.Code)
+		assert.Equal(t, "OK", responseBody.Status)
 	
 		// $ Test body data
 		jsonString, _ := json.Marshal(responseBody.Data)
 		var subjectResponse web.SubjectResponse
 		json.Unmarshal(jsonString,&subjectResponse)	
 		
-		require.Equal(t, inputSubjectSuccess, subjectResponse.Subject)
-		require.Len(t, subjectResponse.Books, 10)
-		require.Equal(t, 1, subjectResponse.Page)
+		assert.Equal(t, inputSubjectSuccess, subjectResponse.Subject)
+		assert.Len(t, subjectResponse.Books, 10)
+		assert.Equal(t, 1, subjectResponse.Page)
 	})
 
 	t.Run("SuccessPage2", func(t *testing.T) {
@@ -61,31 +59,30 @@ func TestControllerLibraryBrowseBySubject(t *testing.T) {
 
 		request := httptest.NewRequest(http.MethodGet, BaseURL+"/api/subjects/" + inputSubjectSuccessPage2, nil)
 		request.Header.Add("Content-Type", "application/json")
-		request.Header.Add("X-API-KEY", os.Getenv("X-API-KEY"))
 
 		recorder := httptest.NewRecorder()
 		router.ServeHTTP(recorder, request)
 
 		// $ Test HTTP status
 		response := recorder.Result()
-		require.Equal(t, http.StatusOK, response.StatusCode)
+		assert.Equal(t, http.StatusOK, response.StatusCode)
 		
 		body, _ := io.ReadAll(response.Body)
 		var responseBody web.WebResponse
 		json.Unmarshal(body, &responseBody)
 
 		// $ Test body status & code
-		require.Equal(t, http.StatusOK, responseBody.Code)
-		require.Equal(t, "OK", responseBody.Status)
+		assert.Equal(t, http.StatusOK, responseBody.Code)
+		assert.Equal(t, "OK", responseBody.Status)
 		
 		// $ Test body data
 		jsonString, _ := json.Marshal(responseBody.Data)
 		var subjectResponse web.SubjectResponse
 		json.Unmarshal(jsonString,&subjectResponse)
 	
-		require.Equal(t, inputSubjectSuccess, subjectResponse.Subject)
-		require.Len(t, subjectResponse.Books, 10)
-		require.Equal(t, 2, subjectResponse.Page)
+		assert.Equal(t, inputSubjectSuccess, subjectResponse.Subject)
+		assert.Len(t, subjectResponse.Books, 10)
+		assert.Equal(t, 2, subjectResponse.Page)
 	})
 
 	t.Run("SubjectNotFound", func(t *testing.T) {
@@ -95,26 +92,25 @@ func TestControllerLibraryBrowseBySubject(t *testing.T) {
 
 		request := httptest.NewRequest(http.MethodGet, BaseURL+"/api/subjects/" + inputSubjectNotFound, nil)
 		request.Header.Add("Content-Type", "application/json")
-		request.Header.Add("X-API-KEY", os.Getenv("X-API-KEY"))
 
 		recorder := httptest.NewRecorder()
 		router.ServeHTTP(recorder, request)
 
 		// $ Test HTTP status
 		response := recorder.Result()
-		require.Equal(t, http.StatusNotFound, response.StatusCode)
+		assert.Equal(t, http.StatusNotFound, response.StatusCode)
 		
 		body, _ := io.ReadAll(response.Body)
 		var responseBody web.WebResponse
 		json.Unmarshal(body, &responseBody)
 
 		// $ Test body status & code
-		require.Equal(t, http.StatusNotFound, responseBody.Code)
-		require.Equal(t, "NOT FOUND", responseBody.Status)
+		assert.Equal(t, http.StatusNotFound, responseBody.Code)
+		assert.Equal(t, "NOT FOUND", responseBody.Status)
 	
 		// $ Test body data
 		subjectResponse := responseBody.Data.(string)
 	
-		require.Equal(t, "subject not found", subjectResponse)
+		assert.Equal(t, "subject not found", subjectResponse)
 	})
 }

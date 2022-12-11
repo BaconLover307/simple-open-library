@@ -20,30 +20,21 @@ import (
 )
 
 var (
-		inputAuthors = []domain.Author{
-			{
-				AuthorId: "ta001",
-				Name: "Jk Rolling",
-			},
-		}
-		
-		inputBook = domain.Book{
-			BookId: "tb001",
-			Title: "Test Book",
-			Edition: 1,
-			Authors: inputAuthors,
-		}
-
-		inputPickup = domain.Pickup{
+		inputPickup1 = domain.Pickup{
 			PickupId: 1,
-			Book: inputBook,
+			Book: inputBook1,
+			Schedule: "2022-12-12 10:20:30",
+		}
+		inputPickup2 = domain.Pickup{
+			PickupId: 2,
+			Book: inputBook2,
 			Schedule: "2022-12-12 10:20:30",
 		}
 	)
 
 func TestControllerPickupSubmit(t *testing.T) {
 
-	data, err := json.Marshal(inputPickup)
+	data, err := json.Marshal(inputPickup1)
 	helper.PanicIfError(err)
 	requestBody := bytes.NewReader(data)
 	request := httptest.NewRequest(http.MethodPost, BaseURL+"/api/pickups", requestBody)
@@ -70,15 +61,15 @@ func TestControllerPickupSubmit(t *testing.T) {
 	var pickupResponse web.PickupResponse
 	json.Unmarshal(jsonString, &pickupResponse)
 
-	assert.Equal(t, inputPickup.PickupId, pickupResponse.PickupId)
-	assert.Equal(t, inputPickup.Schedule, pickupResponse.Schedule)
+	assert.Equal(t, inputPickup1.PickupId, pickupResponse.PickupId)
+	assert.Equal(t, inputPickup1.Schedule, pickupResponse.Schedule)
 
-	assert.Equal(t, inputPickup.Book.BookId, pickupResponse.Book.BookId)
-	assert.Equal(t, inputPickup.Book.Title, pickupResponse.Book.Title)
-	assert.Equal(t, inputPickup.Book.Edition, pickupResponse.Book.Edition)
+	assert.Equal(t, inputPickup1.Book.BookId, pickupResponse.Book.BookId)
+	assert.Equal(t, inputPickup1.Book.Title, pickupResponse.Book.Title)
+	assert.Equal(t, inputPickup1.Book.Edition, pickupResponse.Book.Edition)
 
-	assert.Equal(t, inputPickup.Book.Authors[0].AuthorId, pickupResponse.Book.Authors[0].AuthorId)
-	assert.Equal(t, inputPickup.Book.Authors[0].Name, pickupResponse.Book.Authors[0].Name)
+	assert.Equal(t, inputPickup1.Book.Authors[0].AuthorId, pickupResponse.Book.Authors[0].AuthorId)
+	assert.Equal(t, inputPickup1.Book.Authors[0].Name, pickupResponse.Book.Authors[0].Name)
 }
 
 func TestControllerPickupListSuccess(t *testing.T) {
@@ -89,12 +80,16 @@ func TestControllerPickupListSuccess(t *testing.T) {
 	tx, _ := db.Begin()
 	ctx := context.Background()
 	bookRepo := repository.NewBookRepository()
-	bookRepo.SaveBook(ctx, tx, inputBook)
-	bookRepo.SaveAuthor(ctx, tx, inputAuthors[0])
-	bookRepo.Authored(ctx, tx, inputAuthors[0].AuthorId, inputBook.BookId)
+	bookRepo.SaveBook(ctx, tx, inputBook1)
+	bookRepo.SaveBook(ctx, tx, inputBook2)
+	bookRepo.SaveAuthor(ctx, tx, inputAuthor1)
+	bookRepo.SaveAuthor(ctx, tx, inputAuthor2)
+	bookRepo.Authored(ctx, tx, inputAuthor1.AuthorId, inputBook1.BookId)
+	bookRepo.Authored(ctx, tx, inputAuthor1.AuthorId, inputBook2.BookId)
+	bookRepo.Authored(ctx, tx, inputAuthor2.AuthorId, inputBook2.BookId)
 	pickupRepo := repository.NewPickupRepository()
-	pickup1 := pickupRepo.Create(ctx, tx, inputPickup)
-	pickup2 := pickupRepo.Create(ctx, tx, inputPickup)
+	pickup1 := pickupRepo.Create(ctx, tx, inputPickup1)
+	pickup2 := pickupRepo.Create(ctx, tx, inputPickup2)
 	tx.Commit()
 
 	router := test.InitializeTestServer(db)
@@ -143,30 +138,12 @@ func TestControllerPickupListSuccess(t *testing.T) {
 }
 
 func TestControllerPickupUnauthorized(t *testing.T) {
-	var (
-		inputAuthors = []web.AuthorRequest{
-			{
-				AuthorId: "ta001",
-				Name: "Jk Rolling",
-			},
-		}
-		inputBook = web.BookRequest{
-			BookId: "tb001",
-			Title: "Test Book",
-			Edition: 1,
-			Authors: inputAuthors,
-		}
-		inputPickup = web.PickupCreateRequest{
-			Book: inputBook,
-			Schedule: "2022-12-12 10:20:30",
-		}
-	)
 	
 	db := test.SetupTestDB()
 	test.TruncateDatabase(db)
 	router := test.InitializeTestServer(db)
 
-	data, err := json.Marshal(inputPickup)
+	data, err := json.Marshal(inputPickup1)
 	helper.PanicIfError(err)
 	requestBody := bytes.NewReader(data)
 	request := httptest.NewRequest(http.MethodPost, BaseURL+"/api/categories", requestBody)
