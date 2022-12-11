@@ -27,7 +27,6 @@ var (
 )
 
 func TestRepoPickupCreate(t *testing.T) {
-	testDB.Begin()
 	testTx, err := testDB.Begin()
 	helper.PanicIfError(err)
 	defer helper.CommitOrRollback(testTx)
@@ -43,7 +42,6 @@ func TestRepoPickupCreate(t *testing.T) {
 }
 
 func TestRepoPickupFindByIdFail(t *testing.T) {
-	testDB.Begin()
 	testTx, err := testDB.Begin()
 	helper.PanicIfError(err)
 	defer helper.CommitOrRollback(testTx)
@@ -57,7 +55,6 @@ func TestRepoPickupFindByIdFail(t *testing.T) {
 }
 
 func TestRepoPickupUpdate(t *testing.T) {
-	testDB.Begin()
 	testTx, err := testDB.Begin()
 	helper.PanicIfError(err)
 	defer helper.CommitOrRollback(testTx)
@@ -74,10 +71,8 @@ func TestRepoPickupUpdate(t *testing.T) {
 
 
 func TestRepoPickupDeleteSuccess(t *testing.T) {
-	testDB.Begin()
 	testTx, err := testDB.Begin()
 	helper.PanicIfError(err)
-
 	defer helper.CommitOrRollback(testTx)
 
 	ctx := context.Background()
@@ -90,10 +85,8 @@ func TestRepoPickupDeleteSuccess(t *testing.T) {
 }
 
 func TestRepoPickupDeleteFail(t *testing.T) {
-	testDB.Begin()
 	testTx, err := testDB.Begin()
 	helper.PanicIfError(err)
-
 	defer helper.CommitOrRollback(testTx)
 
 	ctx := context.Background()
@@ -106,10 +99,8 @@ func TestRepoPickupDeleteFail(t *testing.T) {
 }
 
 func TestRepoPickupFindAll(t *testing.T) {
-	testDB.Begin()
 	testTx, err := testDB.Begin()
 	helper.PanicIfError(err)
-
 	defer helper.CommitOrRollback(testTx)
 
 	ctx := context.Background()
@@ -117,11 +108,9 @@ func TestRepoPickupFindAll(t *testing.T) {
 	savedPickup := pickupRepo.Create(ctx, testTx, inputPickup3)
 	inputPickup3.PickupId = savedPickup.PickupId
 
-
 	pickupsResult := pickupRepo.FindAll(ctx, testTx)
 
 	require.Len(t, pickupsResult, 2)
 	require.Equal(t, inputPickup1, pickupsResult[0])
 	require.Equal(t, inputPickup3, pickupsResult[1])
-
 }

@@ -99,9 +99,7 @@ func TestRepoBookFindByIdFail(t *testing.T) {
 func TestRepoBookFindAll(t *testing.T) {
 	testTx, err := testDB.Begin()
 	helper.PanicIfError(err)
-
 	defer helper.CommitOrRollback(testTx)
-	
 
 	ctx := context.Background()
 	bookRepo := repository.NewBookRepository()
@@ -115,5 +113,4 @@ func TestRepoBookFindAll(t *testing.T) {
 	require.Len(t, booksResult, 2)
 	require.Equal(t, inputBook1, booksResult[0])
 	require.Equal(t, inputBook2, booksResult[1])
-
 }

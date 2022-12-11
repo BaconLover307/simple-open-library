@@ -7,16 +7,10 @@ import (
 	"testing"
 )
 
-var (
-	testDB *sql.DB
-	testTx *sql.Tx
-)
+var testDB *sql.DB
 
 func TestMain(m *testing.M) {
 	testDB = test.SetupTestDB()
 	test.TruncateDatabase(testDB)
-
 	os.Exit(m.Run())
 }
-
-
