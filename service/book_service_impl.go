@@ -59,8 +59,8 @@ func (service BookServiceImpl) SaveBook(ctx context.Context, request web.BookReq
 				Name: authorRequest.Name,
 			}
 			author = service.BookRepo.SaveAuthor(ctx, tx, newAuthor)
-			service.BookRepo.Authored(ctx, tx, author.AuthorId, book.BookId)
 		}
+		service.BookRepo.Authored(ctx, tx, author.AuthorId, book.BookId)
 		authors = append(authors, author)
 	}
 	book.Authors = authors
