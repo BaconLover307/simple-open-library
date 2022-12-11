@@ -34,6 +34,12 @@ var (
 			Edition: 1,
 			Authors: inputAuthors1,
 		}
+		inputBook1x = domain.Book{
+			BookId: "tb001",
+			Title: "Test Boo",
+			Edition: 1,
+			Authors: inputAuthors1,
+		}
 		inputBook2 = domain.Book{
 			BookId: "tb002",
 			Title: "Help Book",
