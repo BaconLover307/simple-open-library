@@ -2,6 +2,7 @@ package route
 
 import (
 	"simple-open-library/helper"
+	"strings"
 )
 
 var exists = struct{}{}
@@ -26,7 +27,7 @@ func (p *Prefixes) Remove(value string) {
 
 func (p *Prefixes) ContainsPrefix(prefixes string) bool {
 	for _, prefix := range helper.SplitSubpaths(prefixes) {
-		_, hasValue := p.Set[prefix]
+		_, hasValue := p.Set[strings.TrimPrefix(prefix,"//:")]
 		if (hasValue) {
 			return hasValue
 		}
