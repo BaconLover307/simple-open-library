@@ -2,7 +2,7 @@
     "openapi": "3.0.2",
     "info": {
         "title": "Book Pick Up RESTful API",
-        "description": "API Spec for a book pick up service",
+        "description": "API Specification for a book pick up service",
         "version": "1.0.0"
     },
     "servers": [
@@ -127,7 +127,11 @@
                     {
                         "name": "pickupId",
                         "in": "path",
-                        "description": "Pick Up Id"
+                        "description": "Pick Up Id",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "required": true
                     }
                 ],
                 "responses": {
@@ -188,7 +192,11 @@
                     {
                         "name": "pickupId",
                         "in": "path",
-                        "description": "Pick Up Id"
+                        "description": "Pick Up Id",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "required": true
                     }
                 ],
                 "requestBody": {
@@ -237,7 +245,11 @@
                     {
                         "name": "pickupId",
                         "in": "path",
-                        "description": "Pick Up Id"
+                        "description": "Pick Up Id",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "required": true
                     }
                 ],
                 "responses": {
@@ -272,12 +284,19 @@
                         "name": "subject",
                         "in": "path",
                         "description": "Subject Name",
+                        "schema": {
+                            "type": "string"
+                        },
                         "required": true
                     },
                     {
                         "name": "page",
                         "in": "query",
-                        "description": "Pagination"
+                        "description": "Pagination",
+                        "schema": {
+                            "type": "integer"
+                        },
+                        "required": false
                     }
                 ],
                 "responses": {
