@@ -4,7 +4,6 @@ import (
 	"simple-open-library/model/web"
 	"testing"
 
-	"github.com/stretchr/testify/assert"
 	"github.com/stretchr/testify/require"
 )
 var (
@@ -31,6 +30,6 @@ func TestServiceLibraryBrowseBySubject(t *testing.T) {
 	})
 
 	t.Run("SubjectNotFound", func(t *testing.T) {
-		assert.PanicsWithError(t, "subject not found", func() {testLibraryService.BrowseBySubject(testCtx, web.SubjectRequest{Subject: inputSubjectNotFound, Page: 1})})
+		require.PanicsWithError(t, "subject not found", func() {testLibraryService.BrowseBySubject(testCtx, web.SubjectRequest{Subject: inputSubjectNotFound, Page: 1})})
 	})
 }
