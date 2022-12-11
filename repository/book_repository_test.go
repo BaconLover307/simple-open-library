@@ -36,8 +36,7 @@ var (
 		}
 	)
 
-func TestRepoBookFindAuthor(t *testing.T) {
-	testDB.Begin()
+func TestRepoBookSaveAuthor(t *testing.T) {
 	testTx, err := testDB.Begin()
 	helper.PanicIfError(err)
 	defer helper.CommitOrRollback(testTx)
@@ -55,22 +54,42 @@ func TestRepoBookFindAuthor(t *testing.T) {
 	require.Empty(t, authorResult)
 }
 
-func TestRepoBookFindBookById(t *testing.T) {
-	testDB.Begin()
+func TestRepoBookFindAuthorFail(t *testing.T) {
+	testTx, err := testDB.Begin()
+	helper.PanicIfError(err)
+	defer helper.CommitOrRollback(testTx)
+
+	ctx := context.Background()
+	bookRepo := repository.NewBookRepository()
+	authorResult, err := bookRepo.FindAuthor(ctx, testTx, inputAuthor2.AuthorId)
+	
+	require.Error(t, err)
+	require.Empty(t, authorResult)
+}
+
+func TestRepoBookSave(t *testing.T) {
 	testTx, err := testDB.Begin()
 	helper.PanicIfError(err)
 	defer helper.CommitOrRollback(testTx)
 	
 	ctx := context.Background()
 	bookRepo := repository.NewBookRepository()
-	bookRepo.SaveBook(ctx, testTx, inputBook1)
+	savedBook := bookRepo.SaveBook(ctx, testTx, inputBook1)
 	bookRepo.Authored(ctx, testTx, inputBook1.Authors[0].AuthorId, inputBook1.BookId)
 	bookResult, err := bookRepo.FindBookById(ctx, testTx, inputBook1.BookId)
 	
 	require.NoError(t, err)
-	require.Equal(t, inputBook1, bookResult)
+	require.Equal(t, savedBook, bookResult)	
+}
+
+func TestRepoBookFindByIdFail(t *testing.T) {
+	testTx, err := testDB.Begin()
+	helper.PanicIfError(err)
+	defer helper.CommitOrRollback(testTx)
 	
-	bookResult, err = bookRepo.FindBookById(ctx, testTx, inputBook2.BookId)
+	ctx := context.Background()
+	bookRepo := repository.NewBookRepository()
+	bookResult, err := bookRepo.FindBookById(ctx, testTx, inputBook2.BookId)
 	
 	require.Error(t, err)
 	require.Empty(t, bookResult)
@@ -78,7 +97,6 @@ func TestRepoBookFindBookById(t *testing.T) {
 
 
 func TestRepoBookFindAll(t *testing.T) {
-	testDB.Begin()
 	testTx, err := testDB.Begin()
 	helper.PanicIfError(err)
 
@@ -94,7 +112,7 @@ func TestRepoBookFindAll(t *testing.T) {
 
 	booksResult := bookRepo.FindAllBooks(ctx, testTx)
 
-	require.Equal(t, 2, len(booksResult))
+	require.Len(t, booksResult, 2)
 	require.Equal(t, inputBook1, booksResult[0])
 	require.Equal(t, inputBook2, booksResult[1])
 

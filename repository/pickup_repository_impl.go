@@ -72,6 +72,7 @@ func (repo PickupRepositoryImpl) FindById(ctx context.Context, tx *sql.Tx, picku
 		}
 		book.Authors = authors
 		pickup.Book = book
+		pickup.Schedule = helper.ParseDBTime(pickup.Schedule)
 
 		return pickup, nil
 	} else {
@@ -104,12 +105,13 @@ func (repo PickupRepositoryImpl) FindAll(ctx context.Context, tx *sql.Tx, ) []do
 			authors = append(authors, author)
 			book.Authors = authors
 			pickup.Book = book
+			pickup.Schedule = helper.ParseDBTime(pickup.Schedule)
 			pickups = append(pickups, pickup)
 		} else {
-			// pickupMap[pickup.PickupId] = pickup
 			authors = append(authors, author)
 			book.Authors = authors
 			pickup.Book = book
+			pickup.Schedule = helper.ParseDBTime(pickup.Schedule)
 			pickups[len(pickups)-1] = pickup
 		}
 	}

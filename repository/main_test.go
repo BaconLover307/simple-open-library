@@ -14,7 +14,7 @@ var (
 
 func TestMain(m *testing.M) {
 	testDB = test.SetupTestDB()
-	test.TruncateDatabase(testDB)	
+	test.TruncateDatabase(testDB)
 
 	os.Exit(m.Run())
 }
