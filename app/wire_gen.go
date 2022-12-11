@@ -36,7 +36,8 @@ func InitializeServer() *http.Server {
 	libraryController := controller.NewLibraryController(libraryService)
 	bookController := controller.NewBookController(bookService)
 	router := NewRouter(pickupController, libraryController, bookController)
-	authMiddleware := middleware.NewAuthMiddleware(router)
+	prefixes := NewRouteExclusions()
+	authMiddleware := middleware.NewAuthMiddleware(router, prefixes)
 	server := NewServer(authMiddleware)
 	return server
 }
