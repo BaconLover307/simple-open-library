@@ -28,7 +28,7 @@ func InitializeTestServer(db *sql.DB) *middleware.AuthMiddleware {
 	bookService := service.NewBookService(bookRepository, db, validate)
 	pickupController := controller.NewPickupController(pickupService, bookService)
 	openLibraryLib := lib.NewOpenLibraryLib()
-	libraryService := service.NewLibraryService(openLibraryLib, db, validate)
+	libraryService := service.NewOpenLibraryService(openLibraryLib, db, validate)
 	libraryController := controller.NewLibraryController(libraryService)
 	bookController := controller.NewBookController(bookService)
 	router := app.NewRouter(pickupController, libraryController, bookController)
@@ -43,6 +43,6 @@ var librarySet = wire.NewSet(lib.NewOpenLibraryLib)
 
 var repositorySet = wire.NewSet(repository.NewBookRepository, repository.NewPickupRepository)
 
-var serviceSet = wire.NewSet(service.NewBookService, service.NewLibraryService, service.NewPickupService)
+var serviceSet = wire.NewSet(service.NewBookService, service.NewOpenLibraryService, service.NewPickupService)
 
 var controllerSet = wire.NewSet(controller.NewLibraryController, controller.NewPickupController, controller.NewBookController)

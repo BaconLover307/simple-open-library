@@ -12,21 +12,21 @@ import (
 	"github.com/go-playground/validator/v10"
 )
 
-type LibraryServiceImpl struct {
+type openLibraryService struct {
 	OpenLibraryLib lib.OpenLibraryLib
 	DB *sql.DB
 	Validate *validator.Validate
 }
 
-func NewLibraryService(openLibraryLib lib.OpenLibraryLib, db *sql.DB, validate *validator.Validate) LibraryService {
-	return &LibraryServiceImpl{
+func NewOpenLibraryService(openLibraryLib lib.OpenLibraryLib, db *sql.DB, validate *validator.Validate) LibraryService {
+	return &openLibraryService{
 		OpenLibraryLib: openLibraryLib,
 		DB: db,
 		Validate: validate,
 	}
 }
 
-func (service LibraryServiceImpl) BrowseBySubject(ctx context.Context, request web.SubjectRequest) web.SubjectResponse {
+func (service openLibraryService) BrowseBySubject(ctx context.Context, request web.SubjectRequest) web.SubjectResponse {
 	err := service.Validate.Struct(request)
 	helper.PanicIfError(err)
 	

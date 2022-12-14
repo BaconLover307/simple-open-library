@@ -28,7 +28,7 @@ var repositorySet = wire.NewSet(
 
 var serviceSet = wire.NewSet(
 	service.NewBookService,
-	service.NewLibraryService,
+	service.NewOpenLibraryService,
 	service.NewPickupService,
 )
 
