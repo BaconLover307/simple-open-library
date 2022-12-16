@@ -37,13 +37,19 @@ var (
 		Edition: 2,
 		Authors: inputAuthors2,
 	}
+	inputBookOverwrite = web.BookRequest{
+		BookId:  "tb001",
+		Title:   "Test Bo",
+		Edition: 1,
+		Authors: inputAuthors1,
+	}
 	bookColumns       = []string{"bookId", "title", "edition"}
 	authorColumns     = []string{"authorId", "name"}
 	authoredColumns   = []string{"authorId", "bookId"}
 	selectBookColumns = []string{"bookId", "title", "edition", "authorId", "name"}
 )
 
-func TestServiceBookSave(t *testing.T) {
+func TestServiceBookSaveSuccess(t *testing.T) {
 	testDB, mock, err := sqlmock.New()
 	helper.FatalIfMockError(t, err)
 	defer testDB.Close()
@@ -91,6 +97,78 @@ func TestServiceBookSave(t *testing.T) {
 	require.Equal(t, inputBook2.Authors[0].Name, bookResponse.Authors[0].Name)
 	require.Equal(t, inputBook2.Authors[1].AuthorId, bookResponse.Authors[1].AuthorId)
 	require.Equal(t, inputBook2.Authors[1].Name, bookResponse.Authors[1].Name)
+}
+
+func TestServiceBookSaveSuccessExists(t *testing.T) {
+	testDB, mock, err := sqlmock.New()
+	helper.FatalIfMockError(t, err)
+	defer testDB.Close()
+
+	mock.ExpectBegin()
+	mock.ExpectQuery("SELECT (.+) FROM author a JOIN authored ab").
+		WithArgs(inputBook1.BookId).
+		WillReturnRows(sqlmock.NewRows(selectBookColumns))
+	mock.ExpectExec("INSERT INTO book").
+		WithArgs(inputBook1.BookId, inputBook1.Title, inputBook1.Edition).
+		WillReturnResult(sqlmock.NewResult(1, 1))
+	mock.ExpectQuery("SELECT (.+) FROM author").
+		WithArgs(inputBook1.Authors[0].AuthorId).
+		WillReturnRows(sqlmock.NewRows(authorColumns))
+	mock.ExpectExec("INSERT INTO author").
+		WithArgs(inputBook1.Authors[0].AuthorId, inputBook1.Authors[0].Name).
+		WillReturnResult(sqlmock.NewResult(1, 1))
+	mock.ExpectExec("INSERT INTO authored").
+		WithArgs(inputBook1.Authors[0].AuthorId, inputBook1.BookId).
+		WillReturnResult(sqlmock.NewResult(1, 1))
+	mock.ExpectCommit()
+
+	mock.ExpectBegin()
+	mock.ExpectQuery("SELECT (.+) FROM author a JOIN authored ab").
+		WithArgs(inputBook1.BookId).
+		WillReturnRows(sqlmock.NewRows(selectBookColumns).
+			AddRow(inputBook1.BookId, inputBook1.Title, inputBook1.Edition, inputBook1.Authors[0].AuthorId, inputBook1.Authors[0].Name))
+	mock.ExpectCommit()
+
+	ctx := context.Background()
+	validate := validator.New()
+	bookService := service.NewBookService(repository.NewBookRepository(), testDB, validate)
+
+	bookResponse1 := bookService.SaveBook(ctx, inputBook1)
+	bookResponse2 := bookService.SaveBook(ctx, inputBook1)
+
+	if err = mock.ExpectationsWereMet(); err != nil {
+		t.Errorf("unmet expectation error: %s", err)
+	}
+
+	require.Equal(t, bookResponse1.BookId, bookResponse2.BookId)
+	require.Equal(t, bookResponse1.Title, bookResponse2.Title)
+	require.Equal(t, bookResponse1.Edition, bookResponse2.Edition)
+	require.Equal(t, bookResponse1.Authors[0].AuthorId, bookResponse2.Authors[0].AuthorId)
+	require.Equal(t, bookResponse1.Authors[0].Name, bookResponse2.Authors[0].Name)
+}
+
+func TestServiceBookSaveFailedOverwrite(t *testing.T) {
+	testDB, mock, err := sqlmock.New()
+	helper.FatalIfMockError(t, err)
+	defer testDB.Close()
+
+	mock.ExpectBegin()
+	mock.ExpectQuery("SELECT (.+) FROM author a JOIN authored ab").
+		WithArgs(inputBookOverwrite.BookId).
+		WillReturnRows(sqlmock.NewRows(selectBookColumns).
+			AddRow(inputBook1.BookId, inputBook1.Title, inputBook1.Edition, inputBook1.Authors[0].AuthorId, inputBook1.Authors[0].Name)).
+		RowsWillBeClosed()
+	mock.ExpectRollback()
+
+	ctx := context.Background()
+	validate := validator.New()
+	bookService := service.NewBookService(repository.NewBookRepository(), testDB, validate)
+
+	require.PanicsWithError(t, "cannot overwrite existing book. please insert correct book data", func() { bookService.SaveBook(ctx, inputBookOverwrite) })
+
+	if err = mock.ExpectationsWereMet(); err != nil {
+		t.Errorf("unmet expectation error: %s", err)
+	}
 }
 
 func TestServiceBookFindById(t *testing.T) {
