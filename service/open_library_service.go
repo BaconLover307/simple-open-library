@@ -2,7 +2,6 @@ package service
 
 import (
 	"context"
-	"database/sql"
 	"simple-open-library/exception"
 	"simple-open-library/helper"
 	"simple-open-library/lib"
@@ -14,14 +13,12 @@ import (
 
 type openLibraryService struct {
 	OpenLibraryLib lib.OpenLibraryLib
-	DB *sql.DB
 	Validate *validator.Validate
 }
 
-func NewOpenLibraryService(openLibraryLib lib.OpenLibraryLib, db *sql.DB, validate *validator.Validate) LibraryService {
+func NewOpenLibraryService(openLibraryLib lib.OpenLibraryLib, validate *validator.Validate) LibraryService {
 	return &openLibraryService{
 		OpenLibraryLib: openLibraryLib,
-		DB: db,
 		Validate: validate,
 	}
 }

@@ -32,7 +32,7 @@ func InitializeServer() *http.Server {
 	bookService := service.NewBookService(bookRepository, db, validate)
 	pickupController := controller.NewPickupController(pickupService, bookService)
 	openLibraryLib := lib.NewOpenLibraryLib()
-	libraryService := service.NewOpenLibraryService(openLibraryLib, db, validate)
+	libraryService := service.NewOpenLibraryService(openLibraryLib, validate)
 	libraryController := controller.NewLibraryController(libraryService)
 	bookController := controller.NewBookController(bookService)
 	router := NewRouter(pickupController, libraryController, bookController)
