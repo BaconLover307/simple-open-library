@@ -17,6 +17,10 @@ func ErrorHandler(writer http.ResponseWriter, request *http.Request, err interfa
 		return
 	}
 
+	if badRequestError(writer, request, err) {
+		return
+	}
+
 	if validationErrors(writer, request, err) {
 		return
 	}
@@ -52,6 +56,25 @@ func conflictError(writer http.ResponseWriter, request *http.Request, err interf
 		webResponse := web.WebResponse{
 			Code: http.StatusConflict,
 			Status: "CONFLICT",
+			Data: exception.Error(),
+		}
+
+		helper.WriteResponseBody(writer, webResponse)
+		return true
+	} else {
+		return false
+	}
+}
+
+func badRequestError(writer http.ResponseWriter, request *http.Request, err interface{}) bool {
+	exception, ok := err.(BadRequestError)
+	if ok {
+		writer.Header().Set("Content-Type", "application/json")
+		writer.WriteHeader(http.StatusBadRequest)
+
+		webResponse := web.WebResponse{
+			Code: http.StatusBadRequest,
+			Status: "BAD REQUEST",
 			Data: exception.Error(),
 		}
 

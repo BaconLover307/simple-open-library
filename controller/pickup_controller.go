@@ -2,6 +2,7 @@ package controller
 
 import (
 	"net/http"
+	"simple-open-library/exception"
 	"simple-open-library/helper"
 	"simple-open-library/model/web"
 	"simple-open-library/service"
@@ -58,7 +59,10 @@ func (controller pickupController) GetScheduleById(writer http.ResponseWriter, r
 
 func (controller pickupController) SubmitSchedule(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
 	pickupCreateRequest := web.PickupCreateRequest{}
-	helper.ReadFromRequestBody(request, &pickupCreateRequest)
+	err := helper.ReadFromRequestBody(request, &pickupCreateRequest)
+	if err != nil {
+		panic(exception.NewBadRequestError(err.Error()))
+	}
 
 	controller.BookService.SaveBook(request.Context(), pickupCreateRequest.Book)
 
@@ -74,7 +78,11 @@ func (controller pickupController) SubmitSchedule(writer http.ResponseWriter, re
 
 func (controller pickupController) UpdateSchedule(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
 	pickupUpdateScheduleRequest := web.PickupUpdateScheduleRequest{}
-	helper.ReadFromRequestBody(request, &pickupUpdateScheduleRequest)
+	err := helper.ReadFromRequestBody(request, &pickupUpdateScheduleRequest)
+	if err != nil {
+		panic(exception.NewBadRequestError(err.Error()))
+	}
+
 	pickupId := params.ByName("pickupId")
 	id, err := strconv.Atoi(pickupId)
 	helper.PanicIfError(err)
