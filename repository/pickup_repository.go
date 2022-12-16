@@ -37,7 +37,7 @@ func (repo pickupRepo) Create(ctx context.Context, tx *sql.Tx, pickup domain.Pic
 }
 
 func (repo pickupRepo) UpdateSchedule(ctx context.Context, tx *sql.Tx, pickup domain.Pickup) domain.Pickup {
-	query := "UPDATE pickup set schedule = ? where pickupId = ?"
+	query := "UPDATE pickup SET schedule = ? where pickupId = ?"
 	_, err := tx.ExecContext(ctx, query, pickup.Schedule, pickup.PickupId)
 	helper.PanicIfError(err)
 
@@ -80,7 +80,7 @@ func (repo pickupRepo) FindById(ctx context.Context, tx *sql.Tx, pickupId int) (
 		}
 		book.Authors = authors
 		pickup.Book = book
-		pickup.Schedule = helper.ParseDBTime(pickup.Schedule)
+		helper.PanicIfError(err)
 
 		return pickup, nil
 	} else {
@@ -113,13 +113,13 @@ func (repo pickupRepo) FindAll(ctx context.Context, tx *sql.Tx, ) []domain.Picku
 			authors = append(authors, author)
 			book.Authors = authors
 			pickup.Book = book
-			pickup.Schedule = helper.ParseDBTime(pickup.Schedule)
+			helper.PanicIfError(err)
 			pickups = append(pickups, pickup)
-		} else {
-			authors = append(authors, author)
-			book.Authors = authors
-			pickup.Book = book
-			pickup.Schedule = helper.ParseDBTime(pickup.Schedule)
+			} else {
+				authors = append(authors, author)
+				book.Authors = authors
+				pickup.Book = book
+				helper.PanicIfError(err)
 			pickups[len(pickups)-1] = pickup
 		}
 	}

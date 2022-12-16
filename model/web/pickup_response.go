@@ -1,11 +1,14 @@
 package web
 
-import "simple-open-library/model/domain"
+import (
+	"simple-open-library/model/domain"
+	"time"
+)
 
 type PickupResponse struct {
 	PickupId   int		`json:"pickupId"`
 	Book BookResponse	`json:"book"`
-	Schedule string		`json:"schedule"`
+	Schedule time.Time		`json:"schedule"`
 }
 
 func NewPickupResponse(pickup *domain.Pickup) PickupResponse {
