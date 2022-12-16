@@ -1,9 +1,15 @@
 package service_test
 
 import (
+	"context"
+	"simple-open-library/helper"
+	"simple-open-library/lib"
 	"simple-open-library/model/web"
+	"simple-open-library/service"
 	"testing"
 
+	"github.com/DATA-DOG/go-sqlmock"
+	"github.com/go-playground/validator/v10"
 	"github.com/stretchr/testify/require"
 )
 var (
@@ -12,6 +18,11 @@ var (
 )
 
 func TestServiceLibraryBrowseBySubject(t *testing.T) {
+	// TODO
+	testDB, _, err := sqlmock.New()
+	helper.FatalIfMockError(t, err)
+	testLibraryService := service.NewOpenLibraryService(lib.NewOpenLibraryLib(), testDB, validator.New())
+	testCtx := context.Background()
 
 	t.Run("Success", func(t *testing.T) {
 		subjectResponse := testLibraryService.BrowseBySubject(testCtx, web.SubjectRequest{Subject: inputSubjectSuccess, Page: 1})

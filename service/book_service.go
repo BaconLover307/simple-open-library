@@ -21,14 +21,14 @@ type BookService interface {
 
 type bookService struct {
 	BookRepo repository.BookRepository
-	DB *sql.DB
+	DB       *sql.DB
 	Validate *validator.Validate
 }
 
 func NewBookService(bookRepo repository.BookRepository, db *sql.DB, validate *validator.Validate) BookService {
 	return &bookService{
 		BookRepo: bookRepo,
-		DB: db,
+		DB:       db,
 		Validate: validate,
 	}
 }
@@ -42,7 +42,7 @@ func (service bookService) SaveBook(ctx context.Context, request web.BookRequest
 	defer helper.CommitOrRollback(tx)
 
 	book, err := service.BookRepo.FindBookById(ctx, tx, request.BookId)
-	if (err == nil && !reflect.DeepEqual(web.NewBook(&request), book)) {
+	if err == nil && !reflect.DeepEqual(web.NewBook(&request), book) {
 		panic(exception.NewConflictError("cannot overwrite existing book. please insert correct book data"))
 	}
 	if err == nil {
@@ -50,19 +50,19 @@ func (service bookService) SaveBook(ctx context.Context, request web.BookRequest
 	}
 
 	book = domain.Book{
-		BookId: request.BookId,
-		Title: request.Title,
+		BookId:  request.BookId,
+		Title:   request.Title,
 		Edition: request.Edition,
 	}
 	book = service.BookRepo.SaveBook(ctx, tx, book)
-	
+
 	var authors []domain.Author
 	for _, authorRequest := range request.Authors {
 		author, err := service.BookRepo.FindAuthor(ctx, tx, authorRequest.AuthorId)
-		if (err != nil) {
+		if err != nil {
 			newAuthor := domain.Author{
 				AuthorId: authorRequest.AuthorId,
-				Name: authorRequest.Name,
+				Name:     authorRequest.Name,
 			}
 			author = service.BookRepo.SaveAuthor(ctx, tx, newAuthor)
 		}
