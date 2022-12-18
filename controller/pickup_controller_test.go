@@ -40,6 +40,15 @@ var (
 	inputSchedule1 = web.PickupUpdateScheduleRequest{
 		Schedule: time.Now().Round(time.Second),
 	}
+	inputPickupBadSchedule = struct {
+		PickupId int         `json:"pickup_id"`
+		Book     domain.Book `json:"book"`
+		Schedule string      `json:"schedule"`
+	}{
+		PickupId: 1,
+		Book:     inputBook1x,
+		Schedule: "2022-12-30T08:30:00",
+	}
 )
 
 func TestControllerPickupSubmitSuccess(t *testing.T) {
@@ -86,7 +95,7 @@ func TestControllerPickupSubmitSuccess(t *testing.T) {
 	require.Equal(t, inputPickup1.Book.Authors[0].Name, pickupResponse.Book.Authors[0].Name)
 }
 
-func TestControllerPickupSubmitFailed(t *testing.T) {
+func TestControllerPickupSubmitFailedConflict(t *testing.T) {
 
 	db := test.SetupTestDB()
 	test.TruncateDatabase(db)
@@ -125,6 +134,46 @@ func TestControllerPickupSubmitFailed(t *testing.T) {
 	require.Equal(t, http.StatusConflict, responseBody.Code)
 	require.Equal(t, "CONFLICT", responseBody.Status)
 	require.Equal(t, "cannot overwrite existing book. please insert correct book data", responseBody.Data)
+}
+
+func TestControllerPickupSubmitFailedBadRequest(t *testing.T) {
+
+	db := test.SetupTestDB()
+	test.TruncateDatabase(db)
+
+	tx, _ := db.Begin()
+	ctx := context.Background()
+	bookRepo := repository.NewBookRepository()
+	bookRepo.SaveBook(ctx, tx, inputBook1)
+	bookRepo.SaveAuthor(ctx, tx, inputAuthor1)
+	bookRepo.Authored(ctx, tx, inputAuthor1.AuthorId, inputBook1.BookId)
+	pickupRepo := repository.NewPickupRepository()
+	pickupRepo.Create(ctx, tx, inputPickup1)
+	tx.Commit()
+
+	router := test.InitializeTestServer(db)
+
+	data, err := json.Marshal(inputPickupBadSchedule)
+	helper.PanicIfError(err)
+	requestBody := bytes.NewReader(data)
+	request := httptest.NewRequest(http.MethodPost, BaseURL+"/api/pickups", requestBody)
+	request.Header.Add("Content-Type", "application/json")
+	request.Header.Add("X-API-KEY", os.Getenv("X-API-KEY"))
+
+	recorder := httptest.NewRecorder()
+	router.ServeHTTP(recorder, request)
+
+	// $ Test HTTP status
+	response := recorder.Result()
+	require.Equal(t, http.StatusBadRequest, response.StatusCode)
+
+	body, _ := io.ReadAll(response.Body)
+	var responseBody web.WebResponse
+	json.Unmarshal(body, &responseBody)
+
+	// $ Test body status & code
+	require.Equal(t, http.StatusBadRequest, responseBody.Code)
+	require.Equal(t, "BAD REQUEST", responseBody.Status)
 }
 
 func TestControllerPickupListSuccess(t *testing.T) {
@@ -351,7 +400,7 @@ func TestControllerPickupUpdateSuccess(t *testing.T) {
 	require.Equal(t, pickup1.Book.Authors[0].Name, pickupResponse.Book.Authors[0].Name)
 }
 
-func TestControllerPickupUpdateFailed(t *testing.T) {
+func TestControllerPickupUpdateFailedNotFound(t *testing.T) {
 
 	db := test.SetupTestDB()
 	test.TruncateDatabase(db)
@@ -392,6 +441,46 @@ func TestControllerPickupUpdateFailed(t *testing.T) {
 
 	// $ Test body data
 	require.Equal(t, "pick up schedule not found", responseBody.Data)
+}
+
+func TestControllerPickupUpdateFailedBadRequest(t *testing.T) {
+
+	db := test.SetupTestDB()
+	test.TruncateDatabase(db)
+
+	tx, _ := db.Begin()
+	ctx := context.Background()
+	bookRepo := repository.NewBookRepository()
+	bookRepo.SaveBook(ctx, tx, inputBook1)
+	bookRepo.SaveAuthor(ctx, tx, inputAuthor1)
+	bookRepo.Authored(ctx, tx, inputAuthor1.AuthorId, inputBook1.BookId)
+	pickupRepo := repository.NewPickupRepository()
+	pickupRepo.Create(ctx, tx, inputPickup1)
+	tx.Commit()
+
+	router := test.InitializeTestServer(db)
+
+	data, err := json.Marshal(inputPickupBadSchedule)
+	helper.PanicIfError(err)
+	requestBody := bytes.NewReader(data)
+	request := httptest.NewRequest(http.MethodPut, BaseURL+"/api/pickups/"+strconv.Itoa(2), requestBody)
+	request.Header.Add("Content-Type", "application/json")
+	request.Header.Add("X-API-KEY", os.Getenv("X-API-KEY"))
+
+	recorder := httptest.NewRecorder()
+	router.ServeHTTP(recorder, request)
+
+	// $ Test HTTP status
+	response := recorder.Result()
+	require.Equal(t, http.StatusBadRequest, response.StatusCode)
+
+	body, _ := io.ReadAll(response.Body)
+	var responseBody web.WebResponse
+	json.Unmarshal(body, &responseBody)
+
+	// $ Test body status & code
+	require.Equal(t, http.StatusBadRequest, responseBody.Code)
+	require.Equal(t, "BAD REQUEST", responseBody.Status)
 }
 
 func TestControllerPickupDeleteSuccess(t *testing.T) {
