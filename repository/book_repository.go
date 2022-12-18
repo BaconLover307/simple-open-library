@@ -11,7 +11,7 @@ import (
 type BookRepository interface {
 	SaveBook(ctx context.Context, tx *sql.Tx, book domain.Book) domain.Book
 	FindBookById(ctx context.Context, tx *sql.Tx, bookId string) (domain.Book, error)
-	FindAllBooks(ctx context.Context, tx *sql.Tx) []domain.Book 
+	FindAllBooks(ctx context.Context, tx *sql.Tx) []domain.Book
 	Authored(ctx context.Context, tx *sql.Tx, authorId string, bookId string)
 	SaveAuthor(ctx context.Context, tx *sql.Tx, author domain.Author) domain.Author
 	FindAuthor(ctx context.Context, tx *sql.Tx, authorId string) (domain.Author, error)
@@ -50,17 +50,16 @@ func (repo bookRepo) FindAllBooks(ctx context.Context, tx *sql.Tx) []domain.Book
 	book := domain.Book{}
 	author := domain.Author{}
 	var authors []domain.Author
-	
+
 	for rows.Next() {
 		err = rows.Scan(&book.BookId, &book.Title, &book.Edition, &author.AuthorId, &author.Name)
 		helper.PanicIfError(err)
-		if (len(books) == 0 || books[len(books)-1].BookId != book.BookId) {
+		if len(books) == 0 || books[len(books)-1].BookId != book.BookId {
 			authors = nil
 			authors = append(authors, author)
 			book.Authors = authors
 			books = append(books, book)
 		} else {
-			// pickupMap[pickup.PickupId] = pickup
 			authors = append(authors, author)
 			book.Authors = authors
 			books[len(books)-1] = book
@@ -88,10 +87,10 @@ func (repo bookRepo) FindBookById(ctx context.Context, tx *sql.Tx, bookId string
 		err = rows.Scan(&book.BookId, &book.Title, &book.Edition, &author.AuthorId, &author.Name)
 		helper.PanicIfError(err)
 		authors = append(authors, author)
-		
+
 		// Get remaining authors
 		for rows.Next() {
-			author := domain.Author{}			
+			author := domain.Author{}
 			err = rows.Scan(&book.BookId, &book.Title, &book.Edition, &author.AuthorId, &author.Name)
 			helper.PanicIfError(err)
 			authors = append(authors, author)
@@ -100,7 +99,7 @@ func (repo bookRepo) FindBookById(ctx context.Context, tx *sql.Tx, bookId string
 
 		return book, nil
 	} else {
-		return book, exception.NewNotFoundError("book not found") 
+		return book, exception.NewNotFoundError("book not found")
 	}
 }
 
@@ -133,7 +132,6 @@ func (repo bookRepo) FindAuthor(ctx context.Context, tx *sql.Tx, authorId string
 
 		return author, nil
 	} else {
-		return author, exception.NewNotFoundError("author not found") 
+		return author, exception.NewNotFoundError("author not found")
 	}
 }
-

@@ -86,6 +86,7 @@ This software still has room for improvements:
 * Google Wire ([github.com/google/wire](https://github.com/google/wire)) - Dependency Injection library
 * Testify ([github.com/stretchr/testify](https://github.com/stretchr/testify)) - Unit testing library
 * GoDotEnv ([github.com/joho/godotenv](https://github.com/joho/godotenv)) - Env loader library
+* sqlmock ([github.com/DATA-DOG/go-sqlmock](https://github.com/DATA-DOG/go-sqlmock)) - SQL driver mock to simulate sql driver behavior in tests
 
 ## Contributions
 * Gregorius Jovan Kresnadi - [BaconLover307](https://github.com/BaconLover307)
