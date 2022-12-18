@@ -17,17 +17,17 @@ var (
 	inputPickup1 = domain.Pickup{
 		PickupId: 1,
 		Book:     inputBook1,
-		Schedule: time.Now(),
+		Schedule: time.Now().Round(time.Second),
 	}
 	inputPickup2 = domain.Pickup{
 		PickupId: 2,
 		Book:     inputBook2,
-		Schedule: time.Now(),
+		Schedule: time.Now().Round(time.Second),
 	}
 	inputPickup3 = domain.Pickup{
 		PickupId: 3,
 		Book:     inputBook2,
-		Schedule: time.Now(),
+		Schedule: time.Now().Round(time.Second),
 	}
 	inputSchedule1 = time.Now().Add(1000)
 

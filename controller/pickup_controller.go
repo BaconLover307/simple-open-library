@@ -21,13 +21,13 @@ type PickupController interface {
 
 type pickupController struct {
 	PickupService service.PickupService
-	BookService service.BookService 
+	BookService   service.BookService
 }
 
 func NewPickupController(pickupService service.PickupService, bookService service.BookService) PickupController {
 	return &pickupController{
 		PickupService: pickupService,
-		BookService: bookService,
+		BookService:   bookService,
 	}
 }
 
@@ -87,7 +87,6 @@ func (controller pickupController) UpdateSchedule(writer http.ResponseWriter, re
 	id, err := strconv.Atoi(pickupId)
 	helper.PanicIfError(err)
 	pickupUpdateScheduleRequest.PickupId = id
-
 
 	updateResponse := controller.PickupService.UpdateSchedule(request.Context(), pickupUpdateScheduleRequest)
 	webResponse := web.WebResponse{

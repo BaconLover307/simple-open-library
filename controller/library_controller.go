@@ -15,7 +15,7 @@ type LibraryController interface {
 }
 
 type libraryController struct {
-	LibraryService service.LibraryService 
+	LibraryService service.LibraryService
 }
 
 func NewLibraryController(libraryService service.LibraryService) LibraryController {
@@ -27,7 +27,7 @@ func NewLibraryController(libraryService service.LibraryService) LibraryControll
 func (controller libraryController) BrowseBySubject(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
 	subject := params.ByName("subject")
 	pageQuery := request.URL.Query().Get("page")
-	if (pageQuery == "") {
+	if pageQuery == "" {
 		pageQuery = "1"
 	}
 	page, err := strconv.Atoi(pageQuery)
@@ -37,8 +37,8 @@ func (controller libraryController) BrowseBySubject(writer http.ResponseWriter, 
 	webResponse := web.WebResponse{
 		Code:   200,
 		Status: "OK",
-		Data: subjectResponse,
+		Data:   subjectResponse,
 	}
-	
+
 	helper.WriteResponseBody(writer, webResponse)
 }

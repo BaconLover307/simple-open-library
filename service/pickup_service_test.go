@@ -18,19 +18,19 @@ import (
 var (
 	inputPickupCreate1 = web.PickupCreateRequest{
 		Book:     inputBook1,
-		Schedule: time.Now(),
+		Schedule: time.Now().Round(time.Second),
 	}
 	inputPickupUpdate1 = web.PickupUpdateScheduleRequest{
 		PickupId: 1,
-		Schedule: time.Now(),
+		Schedule: time.Now().Round(time.Second),
 	}
 	inputPickupCreate3 = web.PickupCreateRequest{
 		Book:     inputBook2,
-		Schedule: time.Now(),
+		Schedule: time.Now().Round(time.Second),
 	}
 	inputPickupCreate4 = web.PickupCreateRequest{
 		Book:     inputBook1,
-		Schedule: time.Now(),
+		Schedule: time.Now().Round(time.Second),
 	}
 	pickupColumns = []string{"pickupId", "schedule", "bookId", "title", "edition", "authorId", "name"}
 )
@@ -260,7 +260,6 @@ func TestServicePickupFindAll(t *testing.T) {
 
 	ctx := context.Background()
 	testPickupService := service.NewPickupService(repository.NewPickupRepository(), testDB, validator.New())
-
 	pickupResponses := testPickupService.FindAll(ctx)
 
 	if err = mock.ExpectationsWereMet(); err != nil {

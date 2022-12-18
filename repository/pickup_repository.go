@@ -6,6 +6,7 @@ import (
 	"simple-open-library/exception"
 	"simple-open-library/helper"
 	"simple-open-library/model/domain"
+	"time"
 )
 
 type PickupRepository interface {
@@ -25,7 +26,7 @@ func NewPickupRepository() PickupRepository {
 
 func (repo pickupRepo) Create(ctx context.Context, tx *sql.Tx, pickup domain.Pickup) domain.Pickup {
 	query := "INSERT INTO pickup(bookId, schedule) VALUES(?, ?)"
-	result, err := tx.ExecContext(ctx, query, pickup.Book.BookId, pickup.Schedule)
+	result, err := tx.ExecContext(ctx, query, pickup.Book.BookId, pickup.Schedule.Round(time.Second))
 	helper.PanicIfError(err)
 
 	id, err := result.LastInsertId()
@@ -38,7 +39,7 @@ func (repo pickupRepo) Create(ctx context.Context, tx *sql.Tx, pickup domain.Pic
 
 func (repo pickupRepo) UpdateSchedule(ctx context.Context, tx *sql.Tx, pickup domain.Pickup) domain.Pickup {
 	query := "UPDATE pickup SET schedule = ? where pickupId = ?"
-	_, err := tx.ExecContext(ctx, query, pickup.Schedule, pickup.PickupId)
+	_, err := tx.ExecContext(ctx, query, pickup.Schedule.Round(time.Second), pickup.PickupId)
 	helper.PanicIfError(err)
 
 	return pickup
@@ -70,16 +71,17 @@ func (repo pickupRepo) FindById(ctx context.Context, tx *sql.Tx, pickupId int) (
 		err = rows.Scan(&pickup.PickupId, &pickup.Schedule, &book.BookId, &book.Title, &book.Edition, &author.AuthorId, &author.Name)
 		helper.PanicIfError(err)
 		authors = append(authors, author)
-		
+
 		// Get remaining authors
 		for rows.Next() {
-			author := domain.Author{}			
+			author := domain.Author{}
 			err = rows.Scan(&pickup.PickupId, &pickup.Schedule, &book.BookId, &book.Title, &book.Edition, &author.AuthorId, &author.Name)
 			helper.PanicIfError(err)
 			authors = append(authors, author)
 		}
 		book.Authors = authors
 		pickup.Book = book
+		pickup.Schedule = pickup.Schedule.Local()
 		helper.PanicIfError(err)
 
 		return pickup, nil
@@ -88,7 +90,7 @@ func (repo pickupRepo) FindById(ctx context.Context, tx *sql.Tx, pickupId int) (
 	}
 }
 
-func (repo pickupRepo) FindAll(ctx context.Context, tx *sql.Tx, ) []domain.Pickup {
+func (repo pickupRepo) FindAll(ctx context.Context, tx *sql.Tx) []domain.Pickup {
 	query := `
 	SELECT p.pickupId, p.schedule, p.bookId, b.title, b.edition, a.authorId, a.name FROM pickup p JOIN book b ON p.bookId = b.bookId
 		LEFT JOIN authored ab ON b.bookId = ab.bookId
@@ -104,25 +106,26 @@ func (repo pickupRepo) FindAll(ctx context.Context, tx *sql.Tx, ) []domain.Picku
 	book := domain.Book{}
 	author := domain.Author{}
 	var authors []domain.Author
-	
+
 	for rows.Next() {
 		err = rows.Scan(&pickup.PickupId, &pickup.Schedule, &book.BookId, &book.Title, &book.Edition, &author.AuthorId, &author.Name)
 		helper.PanicIfError(err)
-		if (len(pickups) == 0 || pickups[len(pickups)-1].PickupId != pickup.PickupId) {
+		if len(pickups) == 0 || pickups[len(pickups)-1].PickupId != pickup.PickupId {
 			authors = nil
 			authors = append(authors, author)
 			book.Authors = authors
 			pickup.Book = book
+			pickup.Schedule = pickup.Schedule.Local()
 			helper.PanicIfError(err)
 			pickups = append(pickups, pickup)
-			} else {
-				authors = append(authors, author)
-				book.Authors = authors
-				pickup.Book = book
-				helper.PanicIfError(err)
+		} else {
+			authors = append(authors, author)
+			book.Authors = authors
+			pickup.Book = book
+			pickup.Schedule = pickup.Schedule.Local()
+			helper.PanicIfError(err)
 			pickups[len(pickups)-1] = pickup
 		}
 	}
 	return pickups
 }
-
