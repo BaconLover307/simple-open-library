@@ -24,44 +24,24 @@ For now, please copy the API Spec file ([apispec.json](apispec.json)) into a [Sw
     ```bash
     go install github.com/google/wire/cmd/wire@latest
     ```
+-   [Golang Migrate](https://github.com/golang-migrate/migrate)
+    ```bash
+    go install -tags 'mysql' github.com/golang-migrate/migrate/v4/cmd/migrate@latest
+    ```
 
-## Prerequisites
+## Setup infrastructure
 
 -   Install the necessary [tools](##install-tools) to run / build the application
 -   Setup the .env file. The [.env.example](.env.example) file can be found in the root folder.
--   Migrate the [schema](##sql-schema) into MySQL database. A separate database should be made for unit tests.
+-   Setup a MySQL database, and migrate the [schema](db/migrations/20221218140111_init_library_schema.up.sql) using the command below.
+    ```bash
+    make migrateup
+    ```
+-   A separate database should be made for unit tests. Migrate the schema to the test database using the command below
+    ```bash
+    make migrateup_test
+    ```
 -   Optionally install an API testing tool such as [Postman](https://www.postman.com/downloads) to manually test APIs with ease
-
-## SQL Schema
-
-```sql
-CREATE TABLE book(
-    book_id varchar(20) PRIMARY KEY,
-    title varchar(200),
-    edition integer
-);
-
-CREATE TABLE pickup(
-    pickup_id integer PRIMARY KEY AUTO_INCREMENT,
-    book_id varchar(20),
-    schedule datetime,
-    FOREIGN KEY (book_id) REFERENCES book(book_id)
-);
-
-CREATE TABLE author(
-   author_id varchar(20) PRIMARY KEY,
-   name varchar(100)
-);
-
-CREATE TABLE authored(
-   author_id varchar(20),
-   book_id varchar(20),
-   PRIMARY KEY (author_id, book_id),
-   FOREIGN KEY (author_id) REFERENCES author(author_id),
-   FOREIGN KEY (book_id) REFERENCES book(book_id)
-);
-
-```
 
 ## How to run
 
@@ -89,13 +69,47 @@ CREATE TABLE authored(
     make run_test
     ```
 
-#
+### Database Migration Commands
+
+-   Run db migration up all versions
+    ```bash
+    make migrateup
+    ```
+-   Run db migration up 1 version
+    ```bash
+    make migrateup1
+    ```
+-   Run db migration down all versions
+    ```bash
+    make migratedown
+    ```
+-   Run db migration down 1 version
+    ```bash
+    make migratedown
+    ```
+-   Run test db migration up all versions
+    ```bash
+    make migrateup_test
+    ```
+-   Run test db migration up 1 version
+    ```bash
+    make migrateup1_test
+    ```
+-   Run test db migration down all versions
+    ```bash
+    make migratedown_test
+    ```
+-   Run test db migration down 1 version
+    ```bash
+    make migratedown_test
+    ```
 
 ## Further Improvements
 
 This software still has room for improvements:
 
--   A proper database migration can improve developer experience when setting up / building the project
+-   A virtual container tool like [Docker](https://www.docker.com/) can improve development by automating deployment of applications in isolated lightweight containers so applications can work efficiently in different environments (machines)
+-   API documentation should be more easily accessible
 
 ## Libraries
 
@@ -106,6 +120,7 @@ This software still has room for improvements:
 -   Testify ([github.com/stretchr/testify](https://github.com/stretchr/testify)) - Unit testing library
 -   GoDotEnv ([github.com/joho/godotenv](https://github.com/joho/godotenv)) - Env loader library
 -   sqlmock ([github.com/DATA-DOG/go-sqlmock](https://github.com/DATA-DOG/go-sqlmock)) - SQL driver mock to simulate sql driver behavior in tests
+-   Golang Migrate ([github.com/golang-migrate/migrate](https://github.com/golang-migrate/migrate)) - Library for database migration
 
 ## Contributions
 
