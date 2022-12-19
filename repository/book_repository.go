@@ -25,7 +25,7 @@ func NewBookRepository() BookRepository {
 }
 
 func (repo bookRepo) SaveBook(ctx context.Context, tx *sql.Tx, book domain.Book) domain.Book {
-	query := "INSERT INTO book(bookId, title, edition) VALUES(?, ?, ?)"
+	query := "INSERT INTO book(book_id, title, edition) VALUES(?, ?, ?)"
 
 	_, err := tx.ExecContext(ctx, query, book.BookId, book.Title, book.Edition)
 	helper.PanicIfError(err)
@@ -36,10 +36,10 @@ func (repo bookRepo) SaveBook(ctx context.Context, tx *sql.Tx, book domain.Book)
 
 func (repo bookRepo) FindAllBooks(ctx context.Context, tx *sql.Tx) []domain.Book {
 	query := `
-	SELECT b.bookId, b.title, b.edition, a.authorId, a.name
-	FROM author a JOIN authored ab ON a.authorId = ab.authorId
-		JOIN book b ON ab.bookId = b.bookId
-		ORDER BY b.bookId, a.authorId
+	SELECT b.book_id, b.title, b.edition, a.author_id, a.name
+	FROM author a JOIN authored ab ON a.author_id = ab.author_id
+		JOIN book b ON ab.book_id = b.book_id
+		ORDER BY b.book_id, a.author_id
 	`
 
 	rows, err := tx.QueryContext(ctx, query)
@@ -70,11 +70,11 @@ func (repo bookRepo) FindAllBooks(ctx context.Context, tx *sql.Tx) []domain.Book
 
 func (repo bookRepo) FindBookById(ctx context.Context, tx *sql.Tx, bookId string) (domain.Book, error) {
 	query := `
-	SELECT b.bookId, b.title, b.edition, a.authorId, a.name
-	FROM author a JOIN authored ab ON a.authorId = ab.authorId
-		JOIN book b ON ab.bookId = b.bookId
-	WHERE b.bookId = ?
-	ORDER BY a.authorId
+	SELECT b.book_id, b.title, b.edition, a.author_id, a.name
+	FROM author a JOIN authored ab ON a.author_id = ab.author_id
+		JOIN book b ON ab.book_id = b.book_id
+	WHERE b.book_id = ?
+	ORDER BY a.author_id
 	`
 	rows, err := tx.QueryContext(ctx, query, bookId)
 	helper.PanicIfError(err)
@@ -104,14 +104,14 @@ func (repo bookRepo) FindBookById(ctx context.Context, tx *sql.Tx, bookId string
 }
 
 func (repo bookRepo) Authored(ctx context.Context, tx *sql.Tx, authorId string, bookId string) {
-	query := "INSERT INTO authored(authorId, bookId) VALUES(?, ?)"
+	query := "INSERT INTO authored(author_id, book_id) VALUES(?, ?)"
 
 	_, err := tx.ExecContext(ctx, query, authorId, bookId)
 	helper.PanicIfError(err)
 }
 
 func (repo bookRepo) SaveAuthor(ctx context.Context, tx *sql.Tx, author domain.Author) domain.Author {
-	query := "INSERT INTO author(authorId, name) VALUES(?, ?)"
+	query := "INSERT INTO author(author_id, name) VALUES(?, ?)"
 
 	_, err := tx.ExecContext(ctx, query, author.AuthorId, author.Name)
 	helper.PanicIfError(err)
@@ -120,7 +120,7 @@ func (repo bookRepo) SaveAuthor(ctx context.Context, tx *sql.Tx, author domain.A
 }
 
 func (repo bookRepo) FindAuthor(ctx context.Context, tx *sql.Tx, authorId string) (domain.Author, error) {
-	query := "SELECT authorId, name FROM author WHERE authorId = ?"
+	query := "SELECT author_id, name FROM author WHERE author_id = ?"
 	rows, err := tx.QueryContext(ctx, query, authorId)
 	helper.PanicIfError(err)
 	defer rows.Close()

@@ -25,7 +25,7 @@ func NewPickupRepository() PickupRepository {
 }
 
 func (repo pickupRepo) Create(ctx context.Context, tx *sql.Tx, pickup domain.Pickup) domain.Pickup {
-	query := "INSERT INTO pickup(bookId, schedule) VALUES(?, ?)"
+	query := "INSERT INTO pickup(book_id, schedule) VALUES(?, ?)"
 	result, err := tx.ExecContext(ctx, query, pickup.Book.BookId, pickup.Schedule.Round(time.Second))
 	helper.PanicIfError(err)
 
@@ -38,7 +38,7 @@ func (repo pickupRepo) Create(ctx context.Context, tx *sql.Tx, pickup domain.Pic
 }
 
 func (repo pickupRepo) UpdateSchedule(ctx context.Context, tx *sql.Tx, pickup domain.Pickup) domain.Pickup {
-	query := "UPDATE pickup SET schedule = ? where pickupId = ?"
+	query := "UPDATE pickup SET schedule = ? where pickup_id = ?"
 	_, err := tx.ExecContext(ctx, query, pickup.Schedule.Round(time.Second), pickup.PickupId)
 	helper.PanicIfError(err)
 
@@ -46,7 +46,7 @@ func (repo pickupRepo) UpdateSchedule(ctx context.Context, tx *sql.Tx, pickup do
 }
 
 func (repo pickupRepo) Delete(ctx context.Context, tx *sql.Tx, pickup domain.Pickup) {
-	query := "DELETE FROM pickup WHERE pickupId = ?"
+	query := "DELETE FROM pickup WHERE pickup_id = ?"
 	_, err := tx.ExecContext(ctx, query, pickup.PickupId)
 	helper.PanicIfError(err)
 
@@ -54,10 +54,10 @@ func (repo pickupRepo) Delete(ctx context.Context, tx *sql.Tx, pickup domain.Pic
 
 func (repo pickupRepo) FindById(ctx context.Context, tx *sql.Tx, pickupId int) (domain.Pickup, error) {
 	query := `
-	SELECT p.pickupId, p.schedule, p.bookId, b.title, b.edition, a.authorId, a.name FROM pickup p JOIN book b ON p.bookId = b.bookId
-		LEFT JOIN authored ab ON b.bookId = ab.bookId
-		LEFT JOIN author a ON ab.authorId = a.authorId
-	WHERE p.pickupId = ?
+	SELECT p.pickup_id, p.schedule, p.book_id, b.title, b.edition, a.author_id, a.name FROM pickup p JOIN book b ON p.book_id = b.book_id
+		LEFT JOIN authored ab ON b.book_id = ab.book_id
+		LEFT JOIN author a ON ab.author_id = a.author_id
+	WHERE p.pickup_id = ?
 	`
 	rows, err := tx.QueryContext(ctx, query, pickupId)
 	helper.PanicIfError(err)
@@ -92,10 +92,10 @@ func (repo pickupRepo) FindById(ctx context.Context, tx *sql.Tx, pickupId int) (
 
 func (repo pickupRepo) FindAll(ctx context.Context, tx *sql.Tx) []domain.Pickup {
 	query := `
-	SELECT p.pickupId, p.schedule, p.bookId, b.title, b.edition, a.authorId, a.name FROM pickup p JOIN book b ON p.bookId = b.bookId
-		LEFT JOIN authored ab ON b.bookId = ab.bookId
-		LEFT JOIN author a ON ab.authorId = a.authorId
-		ORDER BY p.pickupId
+	SELECT p.pickup_id, p.schedule, p.book_id, b.title, b.edition, a.author_id, a.name FROM pickup p JOIN book b ON p.book_id = b.book_id
+		LEFT JOIN authored ab ON b.book_id = ab.book_id
+		LEFT JOIN author a ON ab.author_id = a.author_id
+		ORDER BY p.pickup_id
 	`
 	rows, err := tx.QueryContext(ctx, query)
 	helper.PanicIfError(err)
