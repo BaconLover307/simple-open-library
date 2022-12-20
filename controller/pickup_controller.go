@@ -8,15 +8,15 @@ import (
 	"simple-open-library/service"
 	"strconv"
 
-	"github.com/julienschmidt/httprouter"
+	"github.com/go-chi/chi/v5"
 )
 
 type PickupController interface {
-	ListSchedule(writer http.ResponseWriter, request *http.Request, params httprouter.Params)
-	GetScheduleById(writer http.ResponseWriter, request *http.Request, params httprouter.Params)
-	SubmitSchedule(writer http.ResponseWriter, request *http.Request, params httprouter.Params)
-	UpdateSchedule(writer http.ResponseWriter, request *http.Request, params httprouter.Params)
-	DeleteSchedule(writer http.ResponseWriter, request *http.Request, params httprouter.Params)
+	ListSchedule(writer http.ResponseWriter, request *http.Request)
+	GetScheduleById(writer http.ResponseWriter, request *http.Request)
+	SubmitSchedule(writer http.ResponseWriter, request *http.Request)
+	UpdateSchedule(writer http.ResponseWriter, request *http.Request)
+	DeleteSchedule(writer http.ResponseWriter, request *http.Request)
 }
 
 type pickupController struct {
@@ -31,7 +31,7 @@ func NewPickupController(pickupService service.PickupService, bookService servic
 	}
 }
 
-func (controller pickupController) ListSchedule(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
+func (controller pickupController) ListSchedule(writer http.ResponseWriter, request *http.Request) {
 	pickupResponses := controller.PickupService.FindAll(request.Context())
 	webResponse := web.WebResponse{
 		Code:   200,
@@ -42,8 +42,8 @@ func (controller pickupController) ListSchedule(writer http.ResponseWriter, requ
 	helper.WriteResponseBody(writer, webResponse)
 }
 
-func (controller pickupController) GetScheduleById(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
-	pickupId := params.ByName("pickupId")
+func (controller pickupController) GetScheduleById(writer http.ResponseWriter, request *http.Request) {
+	pickupId := chi.URLParam(request, "pickupId")
 	id, err := strconv.Atoi(pickupId)
 	helper.PanicIfError(err)
 
@@ -57,7 +57,7 @@ func (controller pickupController) GetScheduleById(writer http.ResponseWriter, r
 	helper.WriteResponseBody(writer, webResponse)
 }
 
-func (controller pickupController) SubmitSchedule(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
+func (controller pickupController) SubmitSchedule(writer http.ResponseWriter, request *http.Request) {
 	pickupCreateRequest := web.PickupCreateRequest{}
 	err := helper.ReadFromRequestBody(request, &pickupCreateRequest)
 	if err != nil {
@@ -76,14 +76,14 @@ func (controller pickupController) SubmitSchedule(writer http.ResponseWriter, re
 	helper.WriteResponseBody(writer, webResponse)
 }
 
-func (controller pickupController) UpdateSchedule(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
+func (controller pickupController) UpdateSchedule(writer http.ResponseWriter, request *http.Request) {
 	pickupUpdateScheduleRequest := web.PickupUpdateScheduleRequest{}
 	err := helper.ReadFromRequestBody(request, &pickupUpdateScheduleRequest)
 	if err != nil {
 		panic(exception.NewBadRequestError(err.Error()))
 	}
 
-	pickupId := params.ByName("pickupId")
+	pickupId := chi.URLParam(request, "pickupId")
 	id, err := strconv.Atoi(pickupId)
 	helper.PanicIfError(err)
 	pickupUpdateScheduleRequest.PickupId = id
@@ -98,8 +98,8 @@ func (controller pickupController) UpdateSchedule(writer http.ResponseWriter, re
 	helper.WriteResponseBody(writer, webResponse)
 }
 
-func (controller pickupController) DeleteSchedule(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
-	pickupId := params.ByName("pickupId")
+func (controller pickupController) DeleteSchedule(writer http.ResponseWriter, request *http.Request) {
+	pickupId := chi.URLParam(request, "pickupId")
 	id, err := strconv.Atoi(pickupId)
 	helper.PanicIfError(err)
 

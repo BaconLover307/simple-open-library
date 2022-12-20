@@ -52,7 +52,7 @@ func TestControllerBookListBooks(t *testing.T) {
 
 		db := test.SetupTestDB()
 		test.TruncateDatabase(db)
-		router := test.InitializeTestServer(db)
+		router := test.InitializeTestRouter(db)
 
 		request := httptest.NewRequest(http.MethodGet, BaseURL+"/api/books", nil)
 		request.Header.Add("Content-Type", "application/json")
@@ -95,7 +95,7 @@ func TestControllerBookListBooks(t *testing.T) {
 		bookRepo.Authored(ctx, tx, inputAuthor2.AuthorId, inputBook2.BookId)
 		tx.Commit()
 
-		router := test.InitializeTestServer(db)
+		router := test.InitializeTestRouter(db)
 
 		request := httptest.NewRequest(http.MethodGet, BaseURL+"/api/books", nil)
 		request.Header.Add("Content-Type", "application/json")

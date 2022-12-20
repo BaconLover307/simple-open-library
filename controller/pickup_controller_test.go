@@ -55,7 +55,7 @@ func TestControllerPickupSubmitSuccess(t *testing.T) {
 
 	db := test.SetupTestDB()
 	test.TruncateDatabase(db)
-	router := test.InitializeTestServer(db)
+	router := test.InitializeTestRouter(db)
 
 	data, err := json.Marshal(inputPickup1)
 	helper.PanicIfError(err)
@@ -110,7 +110,7 @@ func TestControllerPickupSubmitFailedConflict(t *testing.T) {
 	pickupRepo.Create(ctx, tx, inputPickup1)
 	tx.Commit()
 
-	router := test.InitializeTestServer(db)
+	router := test.InitializeTestRouter(db)
 
 	data, err := json.Marshal(inputPickup1x)
 	helper.PanicIfError(err)
@@ -151,7 +151,7 @@ func TestControllerPickupSubmitFailedBadRequest(t *testing.T) {
 	pickupRepo.Create(ctx, tx, inputPickup1)
 	tx.Commit()
 
-	router := test.InitializeTestServer(db)
+	router := test.InitializeTestRouter(db)
 
 	data, err := json.Marshal(inputPickupBadSchedule)
 	helper.PanicIfError(err)
@@ -196,7 +196,7 @@ func TestControllerPickupListSuccess(t *testing.T) {
 	pickup2 := pickupRepo.Create(ctx, tx, inputPickup2)
 	tx.Commit()
 
-	router := test.InitializeTestServer(db)
+	router := test.InitializeTestRouter(db)
 
 	request := httptest.NewRequest(http.MethodGet, BaseURL+"/api/pickups", nil)
 	request.Header.Add("Content-Type", "application/json")
@@ -270,7 +270,7 @@ func TestControllerPickupGetSuccess(t *testing.T) {
 	pickup1 := pickupRepo.Create(ctx, tx, inputPickup1)
 	tx.Commit()
 
-	router := test.InitializeTestServer(db)
+	router := test.InitializeTestRouter(db)
 
 	request := httptest.NewRequest(http.MethodGet, BaseURL+"/api/pickups/"+strconv.Itoa(1), nil)
 	request.Header.Add("Content-Type", "application/json")
@@ -321,7 +321,7 @@ func TestControllerPickupGetFailed(t *testing.T) {
 	pickupRepo.Create(ctx, tx, inputPickup1)
 	tx.Commit()
 
-	router := test.InitializeTestServer(db)
+	router := test.InitializeTestRouter(db)
 
 	request := httptest.NewRequest(http.MethodGet, BaseURL+"/api/pickups/"+strconv.Itoa(2), nil)
 	request.Header.Add("Content-Type", "application/json")
@@ -361,7 +361,7 @@ func TestControllerPickupUpdateSuccess(t *testing.T) {
 	pickup1 := pickupRepo.Create(ctx, tx, inputPickup1)
 	tx.Commit()
 
-	router := test.InitializeTestServer(db)
+	router := test.InitializeTestRouter(db)
 
 	data, err := json.Marshal(inputSchedule1)
 	helper.PanicIfError(err)
@@ -415,7 +415,7 @@ func TestControllerPickupUpdateFailedNotFound(t *testing.T) {
 	pickupRepo.Create(ctx, tx, inputPickup1)
 	tx.Commit()
 
-	router := test.InitializeTestServer(db)
+	router := test.InitializeTestRouter(db)
 
 	data, err := json.Marshal(inputSchedule1)
 	helper.PanicIfError(err)
@@ -458,7 +458,7 @@ func TestControllerPickupUpdateFailedBadRequest(t *testing.T) {
 	pickupRepo.Create(ctx, tx, inputPickup1)
 	tx.Commit()
 
-	router := test.InitializeTestServer(db)
+	router := test.InitializeTestRouter(db)
 
 	data, err := json.Marshal(inputPickupBadSchedule)
 	helper.PanicIfError(err)
@@ -498,7 +498,7 @@ func TestControllerPickupDeleteSuccess(t *testing.T) {
 	pickupRepo.Create(ctx, tx, inputPickup1)
 	tx.Commit()
 
-	router := test.InitializeTestServer(db)
+	router := test.InitializeTestRouter(db)
 
 	request := httptest.NewRequest(http.MethodDelete, BaseURL+"/api/pickups/"+strconv.Itoa(1), nil)
 	request.Header.Add("Content-Type", "application/json")
@@ -538,7 +538,7 @@ func TestControllerPickupDeleteFailed(t *testing.T) {
 	pickupRepo.Create(ctx, tx, inputPickup1)
 	tx.Commit()
 
-	router := test.InitializeTestServer(db)
+	router := test.InitializeTestRouter(db)
 
 	request := httptest.NewRequest(http.MethodDelete, BaseURL+"/api/pickups/"+strconv.Itoa(2), nil)
 	request.Header.Add("Content-Type", "application/json")
@@ -567,12 +567,12 @@ func TestControllerPickupUnauthorized(t *testing.T) {
 
 	db := test.SetupTestDB()
 	test.TruncateDatabase(db)
-	router := test.InitializeTestServer(db)
+	router := test.InitializeTestRouter(db)
 
 	data, err := json.Marshal(inputPickup1)
 	helper.PanicIfError(err)
 	requestBody := bytes.NewReader(data)
-	request := httptest.NewRequest(http.MethodPost, BaseURL+"/api/categories", requestBody)
+	request := httptest.NewRequest(http.MethodPost, BaseURL+"/api/pickups", requestBody)
 	request.Header.Add("Content-Type", "application/json")
 	request.Header.Add("X-API-KEY", "SALAH")
 

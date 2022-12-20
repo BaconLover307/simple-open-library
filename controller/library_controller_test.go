@@ -22,7 +22,7 @@ func TestControllerLibraryBrowseBySubject(t *testing.T) {
 	t.Run("Success", func(t *testing.T) {
 		db := test.SetupTestDB()
 		test.TruncateDatabase(db)
-		router := test.InitializeTestServer(db)
+		router := test.InitializeTestRouter(db)
 
 		request := httptest.NewRequest(http.MethodGet, BaseURL+"/api/subjects/"+inputSubjectSuccess, nil)
 		request.Header.Add("Content-Type", "application/json")
@@ -55,7 +55,7 @@ func TestControllerLibraryBrowseBySubject(t *testing.T) {
 	t.Run("SuccessPage2", func(t *testing.T) {
 		db := test.SetupTestDB()
 		test.TruncateDatabase(db)
-		router := test.InitializeTestServer(db)
+		router := test.InitializeTestRouter(db)
 
 		request := httptest.NewRequest(http.MethodGet, BaseURL+"/api/subjects/"+inputSubjectSuccessPage2, nil)
 		request.Header.Add("Content-Type", "application/json")
@@ -88,7 +88,7 @@ func TestControllerLibraryBrowseBySubject(t *testing.T) {
 	t.Run("SubjectNotFound", func(t *testing.T) {
 		db := test.SetupTestDB()
 		test.TruncateDatabase(db)
-		router := test.InitializeTestServer(db)
+		router := test.InitializeTestRouter(db)
 
 		request := httptest.NewRequest(http.MethodGet, BaseURL+"/api/subjects/"+inputSubjectNotFound, nil)
 		request.Header.Add("Content-Type", "application/json")

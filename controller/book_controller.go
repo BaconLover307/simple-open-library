@@ -5,12 +5,10 @@ import (
 	"simple-open-library/helper"
 	"simple-open-library/model/web"
 	"simple-open-library/service"
-
-	"github.com/julienschmidt/httprouter"
 )
 
 type BookController interface {
-	ListBooks(writer http.ResponseWriter, request *http.Request, params httprouter.Params)
+	ListBooks(writer http.ResponseWriter, request *http.Request)
 }
 
 type bookController struct {
@@ -21,7 +19,7 @@ func NewBookController(bookService service.BookService) BookController {
 	return &bookController{BookService: bookService}
 }
 
-func (controller bookController) ListBooks(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
+func (controller bookController) ListBooks(writer http.ResponseWriter, request *http.Request) {
 	bookResponses := controller.BookService.FindAllBooks(request.Context())
 	webResponse := web.WebResponse{
 		Code:   200,

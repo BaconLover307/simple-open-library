@@ -7,11 +7,11 @@ import (
 	"simple-open-library/service"
 	"strconv"
 
-	"github.com/julienschmidt/httprouter"
+	"github.com/go-chi/chi/v5"
 )
 
 type LibraryController interface {
-	BrowseBySubject(writer http.ResponseWriter, request *http.Request, params httprouter.Params)
+	BrowseBySubject(writer http.ResponseWriter, request *http.Request)
 }
 
 type libraryController struct {
@@ -24,8 +24,8 @@ func NewLibraryController(libraryService service.LibraryService) LibraryControll
 	}
 }
 
-func (controller libraryController) BrowseBySubject(writer http.ResponseWriter, request *http.Request, params httprouter.Params) {
-	subject := params.ByName("subject")
+func (controller libraryController) BrowseBySubject(writer http.ResponseWriter, request *http.Request) {
+	subject := chi.URLParam(request, "subject")
 	pageQuery := request.URL.Query().Get("page")
 	if pageQuery == "" {
 		pageQuery = "1"

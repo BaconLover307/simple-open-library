@@ -12,7 +12,6 @@ import (
 	"net/http"
 	"simple-open-library/controller"
 	"simple-open-library/lib"
-	"simple-open-library/middleware"
 	"simple-open-library/repository"
 	"simple-open-library/service"
 )
@@ -35,10 +34,8 @@ func InitializeServer() *http.Server {
 	libraryService := service.NewOpenLibraryService(openLibraryLib, validate)
 	libraryController := controller.NewLibraryController(libraryService)
 	bookController := controller.NewBookController(bookService)
-	router := NewRouter(pickupController, libraryController, bookController)
-	prefixes := NewRouteExclusions()
-	authMiddleware := middleware.NewAuthMiddleware(router, prefixes)
-	server := NewServer(authMiddleware)
+	mux := NewRouter(pickupController, libraryController, bookController)
+	server := NewServer(mux)
 	return server
 }
 
