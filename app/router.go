@@ -33,11 +33,3 @@ func NewRouter(pickupController controller.PickupController, libraryController c
 
 	return router
 }
-
-// func NewRouteExclusions() *route.Prefixes {
-// 	prefixes := route.NewPrefixes()
-// 	prefixes.Add("/api/books")
-// 	prefixes.Add("/api/subjects")
-
-// 	return prefixes
-// }
