@@ -8,20 +8,47 @@ import (
 	"github.com/go-playground/validator/v10"
 )
 
-func ErrorHandler(writer http.ResponseWriter, request *http.Request, err interface{}) {
+func HttprouterErrorHandler(writer http.ResponseWriter, request *http.Request, err interface{}) {
 	if notFoundError(writer, request, err) {
 		return
 	}
-
 	if conflictError(writer, request, err) {
 		return
 	}
-
+	if badRequestError(writer, request, err) {
+		return
+	}
 	if validationErrors(writer, request, err) {
 		return
 	}
 
 	internalServerError(writer, request, err)
+}
+
+func ChiErrorHandler(next http.Handler) http.Handler {
+	return http.HandlerFunc(func(writer http.ResponseWriter, request *http.Request) {
+		defer func() {
+			err := recover()
+
+			if notFoundError(writer, request, err) {
+				return
+			}
+			if conflictError(writer, request, err) {
+				return
+			}
+			if badRequestError(writer, request, err) {
+				return
+			}
+			if validationErrors(writer, request, err) {
+				return
+			}
+			if internalServerError(writer, request, err) {
+				return
+			}
+		}()
+
+		next.ServeHTTP(writer, request)
+	})
 }
 
 func notFoundError(writer http.ResponseWriter, request *http.Request, err interface{}) bool {
@@ -31,9 +58,9 @@ func notFoundError(writer http.ResponseWriter, request *http.Request, err interf
 		writer.WriteHeader(http.StatusNotFound)
 
 		webResponse := web.WebResponse{
-			Code: http.StatusNotFound,
+			Code:   http.StatusNotFound,
 			Status: "NOT FOUND",
-			Data: exception.Error(),
+			Data:   exception.Error(),
 		}
 
 		helper.WriteResponseBody(writer, webResponse)
@@ -50,9 +77,28 @@ func conflictError(writer http.ResponseWriter, request *http.Request, err interf
 		writer.WriteHeader(http.StatusConflict)
 
 		webResponse := web.WebResponse{
-			Code: http.StatusConflict,
+			Code:   http.StatusConflict,
 			Status: "CONFLICT",
-			Data: exception.Error(),
+			Data:   exception.Error(),
+		}
+
+		helper.WriteResponseBody(writer, webResponse)
+		return true
+	} else {
+		return false
+	}
+}
+
+func badRequestError(writer http.ResponseWriter, request *http.Request, err interface{}) bool {
+	exception, ok := err.(BadRequestError)
+	if ok {
+		writer.Header().Set("Content-Type", "application/json")
+		writer.WriteHeader(http.StatusBadRequest)
+
+		webResponse := web.WebResponse{
+			Code:   http.StatusBadRequest,
+			Status: "BAD REQUEST",
+			Data:   exception.Error(),
 		}
 
 		helper.WriteResponseBody(writer, webResponse)
@@ -69,9 +115,9 @@ func validationErrors(writer http.ResponseWriter, request *http.Request, err int
 		writer.WriteHeader(http.StatusBadRequest)
 
 		webResponse := web.WebResponse{
-			Code: http.StatusBadRequest,
+			Code:   http.StatusBadRequest,
 			Status: "BAD REQUEST",
-			Data: exception.Error(),
+			Data:   exception.Error(),
 		}
 
 		helper.WriteResponseBody(writer, webResponse)
@@ -81,15 +127,21 @@ func validationErrors(writer http.ResponseWriter, request *http.Request, err int
 	}
 }
 
-func internalServerError(writer http.ResponseWriter, request *http.Request, err interface{}) {
-	writer.Header().Set("Content-Type", "application/json")
-	writer.WriteHeader(http.StatusInternalServerError)
+func internalServerError(writer http.ResponseWriter, request *http.Request, err interface{}) bool {
+	exception, ok := err.(validator.ValidationErrors)
+	if ok {
+		writer.Header().Set("Content-Type", "application/json")
+		writer.WriteHeader(http.StatusInternalServerError)
 
-	webResponse := web.WebResponse{
-		Code: http.StatusInternalServerError,
-		Status: "INTERNAL SERVER ERROR",
-		Data: err,
+		webResponse := web.WebResponse{
+			Code:   http.StatusInternalServerError,
+			Status: "INTERNAL SERVER ERROR",
+			Data:   exception.Error(),
+		}
+
+		helper.WriteResponseBody(writer, webResponse)
+		return true
+	} else {
+		return false
 	}
-
-	helper.WriteResponseBody(writer, webResponse)
 }

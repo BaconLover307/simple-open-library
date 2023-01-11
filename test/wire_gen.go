@@ -8,19 +8,19 @@ package test
 
 import (
 	"database/sql"
+	"github.com/go-chi/chi/v5"
 	"github.com/go-playground/validator/v10"
 	"github.com/google/wire"
 	"simple-open-library/app"
 	"simple-open-library/controller"
 	"simple-open-library/lib"
-	"simple-open-library/middleware"
 	"simple-open-library/repository"
 	"simple-open-library/service"
 )
 
 // Injectors from test_injector.go:
 
-func InitializeTestServer(db *sql.DB) *middleware.AuthMiddleware {
+func InitializeTestRouter(db *sql.DB) *chi.Mux {
 	pickupRepository := repository.NewPickupRepository()
 	validate := validator.New()
 	pickupService := service.NewPickupService(pickupRepository, db, validate)
@@ -28,13 +28,11 @@ func InitializeTestServer(db *sql.DB) *middleware.AuthMiddleware {
 	bookService := service.NewBookService(bookRepository, db, validate)
 	pickupController := controller.NewPickupController(pickupService, bookService)
 	openLibraryLib := lib.NewOpenLibraryLib()
-	libraryService := service.NewLibraryService(openLibraryLib, db, validate)
+	libraryService := service.NewOpenLibraryService(openLibraryLib, validate)
 	libraryController := controller.NewLibraryController(libraryService)
 	bookController := controller.NewBookController(bookService)
-	router := app.NewRouter(pickupController, libraryController, bookController)
-	prefixes := app.NewRouteExclusions()
-	authMiddleware := middleware.NewAuthMiddleware(router, prefixes)
-	return authMiddleware
+	mux := app.NewRouter(pickupController, libraryController, bookController)
+	return mux
 }
 
 // test_injector.go:
@@ -43,6 +41,6 @@ var librarySet = wire.NewSet(lib.NewOpenLibraryLib)
 
 var repositorySet = wire.NewSet(repository.NewBookRepository, repository.NewPickupRepository)
 
-var serviceSet = wire.NewSet(service.NewBookService, service.NewLibraryService, service.NewPickupService)
+var serviceSet = wire.NewSet(service.NewBookService, service.NewOpenLibraryService, service.NewPickupService)
 
 var controllerSet = wire.NewSet(controller.NewLibraryController, controller.NewPickupController, controller.NewBookController)

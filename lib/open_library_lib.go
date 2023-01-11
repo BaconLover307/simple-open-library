@@ -17,20 +17,20 @@ type OpenLibraryLib interface {
 	BrowseSubjects(ctx context.Context, subject string, page int) model.OpenLibrarySubjectsResponse
 }
 
-type OpenLibraryImpl struct {
+type openLibraryLib struct {
 	BaseUrl string
 }
 
 func NewOpenLibraryLib() OpenLibraryLib {
-	return &OpenLibraryImpl{BaseUrl: openLibUrl}
+	return &openLibraryLib{BaseUrl: openLibUrl}
 }
 
 
-func (openLibrary OpenLibraryImpl) BrowseSubjects(ctx context.Context, subject string, page int) model.OpenLibrarySubjectsResponse {
+func (lib openLibraryLib) BrowseSubjects(ctx context.Context, subject string, page int) model.OpenLibrarySubjectsResponse {
 	request, err := http.NewRequestWithContext(
 		ctx,
 		http.MethodGet,
-		fmt.Sprintf("%s/subjects/%s.json?limit=10&offset=%d",openLibrary.BaseUrl, subject, (page-1)*10),
+		fmt.Sprintf("%s/subjects/%s.json?limit=10&offset=%d", lib.BaseUrl, subject, (page-1)*10),
 		nil,
 	)
 	// request.Header.Add("")

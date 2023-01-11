@@ -2,7 +2,7 @@ package web
 
 type SubjectResponse struct {
 	Subject   string         `json:"subject"`
-	BookCount int            `json:"book_count"`
+	BookCount int            `json:"bookCount"`
 	Page      int            `json:"page"`
 	Books     []BookResponse `json:"books"`
 }

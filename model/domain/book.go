@@ -8,13 +8,13 @@ import (
 type Book struct {
 	BookId  string
 	Title   string
-	Authors  []Author
+	Authors []Author
 	Edition int
 }
 
 const (
 	openLibraryAuthorKeyPrefix = "/authors/"
-	openLibraryBookKeyPrefix = "/works/"
+	openLibraryBookKeyPrefix   = "/works/"
 )
 
 func NewBookFromOpenLibrary(libraryBook *model.OpenLibraryBook) Book {
@@ -27,8 +27,8 @@ func NewBookFromOpenLibrary(libraryBook *model.OpenLibraryBook) Book {
 	bookId := strings.TrimPrefix(libraryBook.Key, openLibraryBookKeyPrefix)
 
 	return Book{
-		BookId: bookId,
-		Title: libraryBook.Title,
+		BookId:  bookId,
+		Title:   libraryBook.Title,
 		Authors: authors,
 		Edition: libraryBook.EditionCount,
 	}
