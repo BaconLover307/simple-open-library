@@ -29,7 +29,7 @@ var (
 		Book:     inputBook2,
 		Schedule: time.Now().Round(time.Second),
 	}
-	inputSchedule1 = time.Now().Round(time.Second).Add(1000*time.Second)
+	inputSchedule1 = time.Now().Round(time.Second).Add(1000 * time.Second)
 
 	selectPickupColumns = []string{"pickupId", "schedule", "bookId", "title", "edition", "authorId", "name"}
 )
